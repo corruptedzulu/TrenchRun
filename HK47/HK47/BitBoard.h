@@ -30,6 +30,17 @@
 			if (INDEX + 1 >= 56) IGNORE;
 
 
+
+		The Opponent board is like this:
+
+		0 X X X X X X X
+		0 X X X X X X X
+		0 X X X X X X X 
+		0 X X X X X X X
+		0 X X X X X X X
+		0 X X X X X X X
+		0 X X X X X X X
+		0 0 0 0 0 0 0 0
 	
 
 
@@ -53,12 +64,18 @@ private:
 	string type;
 	uint64_t board;
 
+	uint64_t convertRowColToBitBoard(char row, char col);
+	char convertOpponentViewToMyViewRow(char row);
+	char convertOpponentViewToMyViewCol(char col);
+
 public:
 	BitBoard();
 	BitBoard(string t);
+	BitBoard(string t, char row, char col);
 	~BitBoard();
 
 	void setBoard(uint64_t b);
+	string getType();
 
 };
 

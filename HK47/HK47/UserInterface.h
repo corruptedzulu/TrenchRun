@@ -1,6 +1,14 @@
 #pragma once
+
+#include "BoardDisplay.h"
+
 class UserInterface
 {
+
+private:
+	BoardDisplay boardDisplay;
+
+
 public:
 	UserInterface();
 	~UserInterface();
@@ -12,7 +20,7 @@ public:
 
 
 	void getNextMove();
-	void askWhichPlayerStarts();
+	bool askWhichPlayerStarts();
 	
 	void printOpeningMessage();
 	void printPlayerVictory();
