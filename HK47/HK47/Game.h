@@ -3,12 +3,14 @@
 #include "AI.h"
 #include "UserInterface.h"
 #include "BitBoard.h"
+#include "MoveGenerator.h"
 #include <vector>
 
 class Game
 {
 	UserInterface userInterface;
 	AI ai;
+	MoveGenerator mover;
 
 	vector<BitBoard> allPieces;
 	vector<BitBoard> myPieces;

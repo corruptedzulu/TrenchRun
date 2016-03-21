@@ -62,6 +62,8 @@ class BitBoard
 {
 private:
 	string type;
+	string name;
+	bool isComputerPiece;
 	uint64_t board;
 
 	uint64_t convertRowColToBitBoard(char row, char col);
@@ -70,12 +72,14 @@ private:
 
 public:
 	BitBoard();
-	BitBoard(string t);
-	BitBoard(string t, char row, char col);
+	BitBoard(string n);
+	BitBoard(string n, string t, bool isComp, char row, char col);
 	~BitBoard();
 
 	void setBoard(uint64_t b);
+	uint64_t getBoard();
 	string getType();
-
+	string getName();
+	bool getIsComputerPiece();
 };
 

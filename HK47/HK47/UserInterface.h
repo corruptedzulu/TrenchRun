@@ -14,7 +14,7 @@ public:
 	~UserInterface();
 
 	void refreshBoardDisplay();
-	void printBoard();
+	void printBoard(vector<BitBoard> pieces);
 	void printComputerMove();
 	void printMakeMoveRequest();
 
