@@ -11,6 +11,39 @@ MoveGenerator::~MoveGenerator()
 {
 }
 
+void MoveGenerator::findMoves()
+{
+	//move types
+	
+	//tie fighter
+	//forward
+		//move all
+	//left
+	//right
+	//backward for capture
+	
+	//x wing
+	//forward right
+	//forward left
+	//backward left for capture
+	//backward right for capture
+
+
+	//if(computerTurn)
+	//check my tie fighters
+
+	//check my X wings
+
+	//else
+	//check opponent tie fighters
+
+	//check opponent X Wings
+
+
+
+
+}
+
 void MoveGenerator::findMovesForPiece(BitBoard piece)
 {
 	string type = piece.getType();

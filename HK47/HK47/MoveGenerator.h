@@ -9,6 +9,8 @@ public:
 	MoveGenerator();
 	~MoveGenerator();
 
+	void findMoves();
+
 
 	void findMovesForPiece(BitBoard piece);
 	void comparePossibleMovesWithBoard(BitBoard piece, BitBoard otherPieces);
