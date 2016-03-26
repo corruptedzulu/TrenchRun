@@ -4,20 +4,53 @@
 #include "UserInterface.h"
 #include "BitBoard.h"
 #include "MoveGenerator.h"
+#include "Move.h"
 #include <vector>
 
 class Game
 {
+
+private:
+
+	bool gameIsInProgress;
+	int victor = 0;
+
+
 	UserInterface userInterface;
 	AI ai;
 	MoveGenerator mover;
 
-	vector<BitBoard> allPieces;
-	vector<BitBoard> myPieces;
-	vector<BitBoard> opponentPieces;
+	vector<uint64_t> allPiecesVector;
+	vector<uint64_t> myPiecesVector;
+	vector<uint64_t> opponentPiecesVecotr;
+	//vector<uint64_t> removedMyPieces;
+	//vector<uint64_t> removedOpponentPieces;
 
-	vector<BitBoard> removedMyPieces;
-	vector<BitBoard> removedOpponentPieces;
+
+	// attributes for all of the pieces in play
+	// 8, 32-bit numbers. one for each row
+	// 0-index is the first row. lowest bit is the first column
+	// stored in this form:
+	// 0000 0000 0000 0000 0000 0000 0000 0000
+	uint32_t allPiecesAttr[8];
+
+
+	// to use the attributes, extract them by turning off the other bits
+	// (AND these masks with a copy of the attribute row)
+	// flags to do so are:
+	uint32_t columnOne =   0xF0000000; // 11110000000000000000000000000000;
+	uint32_t columnTwo =   0x0F000000; // 00001111000000000000000000000000;
+	uint32_t columnThree = 0x00F00000; // 00000000111100000000000000000000;
+	uint32_t columnFour =  0x000F0000; // 00000000000011110000000000000000;
+	uint32_t columnFive =  0x0000F000; // 00000000000000001111000000000000;
+	uint32_t columnSix =   0x00000F00; // 00000000000000000000111100000000;
+	uint32_t columnSeven = 0x000000F0; // 00000000000000000000000011110000;
+	uint32_t columnEight = 0x0000000F; // 00000000000000000000000000001111;
+
+	
+	uint32_t getAttributesOfColumnForRow(uint32_t mask, uint32_t attribute);
+	void updateGameBoardWithMove(Move move);
+	bool isGameOver();
 
 
 

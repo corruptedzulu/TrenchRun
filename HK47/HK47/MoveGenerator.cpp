@@ -13,6 +13,10 @@ MoveGenerator::~MoveGenerator()
 
 void MoveGenerator::findMoves()
 {
+	//accept vector of pieces that can be moved, as well as specific piece boards (all, mine, opponent, death star, etc)
+
+	//create a bitboard to represent each possible move of each piece? return them all?
+
 	//move types
 	
 	//tie fighter

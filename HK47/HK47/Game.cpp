@@ -2,6 +2,9 @@
 #include "Game.h"
 
 
+
+
+
 Game::Game()
 {
 }
@@ -14,10 +17,82 @@ Game::~Game()
 
 void Game::gameLoop()
 {
+	while (gameIsInProgress)
+	{
+		userInterface.printMakeMoveRequest();
+		Move opponentMove = userInterface.getNextMove();
+
+		//check move legality
+		if (move is NOT legal)
+		{
+			//opponent's move was illegal
+			userInterface.printIllegalMove();
+			//skip to the next while() iteration and ask for a different move
+			continue;
+		}
+
+		updateGameBoardWithMove(opponentMove);
+		
+		userInterface.refreshBoardDisplay();
+
+		if (isGameOver())
+		{
+			gameIsInProgress = false;
+
+			//computer wins
+			if (victor == 1)
+			{
+				userInterface.printComputerVictory();
+			}
+			//opponent wins
+			else if (victor == 2)
+			{
+				userInterface.printPlayerVictory();
+			}
+			//tie
+			else
+			{
+				userInterface.printTie();
+			}
+
+			continue;
+		}
 
 
+		Move computerMove = ai.determineComputerMove();
 
-	userInterface.refreshBoardDisplay();
+		updateGameBoardWithMove(computerMove);
+
+		userInterface.printComputerMove();
+
+		userInterface.refreshBoardDisplay();
+
+
+		if (isGameOver())
+		{
+			gameIsInProgress = false;
+
+			//computer wins
+			if (victor == 1)
+			{
+				userInterface.printComputerVictory();
+			}
+			//opponent wins
+			else if (victor == 2)
+			{
+				userInterface.printPlayerVictory();
+			}
+			//tie
+			else
+			{
+				userInterface.printTie();
+			}
+
+			continue;
+		}
+		
+		
+	}
 }
 
 void Game::initHelers()
@@ -74,4 +149,18 @@ void Game::createBitBoards()
 	BitBoard *opponentXWingThree;
 	BitBoard *opponentXWingFour;
 
+}
+
+uint32_t Game::getAttributesOfColumnForRow(uint32_t mask, uint32_t attribute)
+{
+	return attribute & mask;
+}
+
+void Game::updateGameBoardWithMove(Move move)
+{
+}
+
+bool Game::isGameOver()
+{
+	return false;
 }
