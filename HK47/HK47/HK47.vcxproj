@@ -147,7 +147,6 @@
   <ItemGroup>
     <ClInclude Include="AI.h" />
     <ClInclude Include="BitBoard.h" />
-    <ClInclude Include="BoardDisplay.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="HK47.h" />
     <ClInclude Include="Move.h" />
@@ -159,7 +158,6 @@
   <ItemGroup>
     <ClCompile Include="AI.cpp" />
     <ClCompile Include="BitBoard.cpp" />
-    <ClCompile Include="BoardDisplay.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="HK47.cpp" />
     <ClCompile Include="Move.cpp" />

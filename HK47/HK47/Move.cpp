@@ -15,7 +15,36 @@ Move::~Move()
 {
 }
 
+void Move::setStartLocation(uint64_t start)
+{
+	location = start;
+}
+
+void Move::setDestinationLocation(uint64_t dest)
+{
+	destination = dest;
+}
+void Move::setIsBackwardsMovement(bool back)
+{
+	isBackwardsMovement = back;
+}
+
+uint64_t Move::getLocation()
+{
+	return location;
+}
+
+uint64_t Move::getDestination()
+{
+	return destination;
+}
+
 void Move::moveToLocation(uint64_t d)
+{
+	//if (location - )
+}
+
+void Move::moveToLocation(char row, char col)
 {
 }
 
@@ -36,7 +65,7 @@ uint64_t Move::convertRowColToBitBoard(char row, char col)
 	thisLoc << rowIncrement;
 	thisLoc << columnIncrement;
 
-	return uint64_t();
+	return thisLoc;
 }
 
 char Move::convertOpponentViewToMyViewRow(char row)
@@ -47,4 +76,10 @@ char Move::convertOpponentViewToMyViewRow(char row)
 char Move::convertOpponentViewToMyViewCol(char col)
 {
 	return 0;
+}
+
+bool operator==(Move & lhs, Move & rhs)
+{
+
+	return lhs.getDestination() == rhs.getDestination() && lhs.getLocation() == rhs.getLocation();
 }

@@ -17,13 +17,72 @@ Game::~Game()
 
 void Game::gameLoop()
 {
+	vector<Move> possibleMoves;
+
+	userInterface.printOpeningMessage();
+	
+	bool opponentPlaysFirst = userInterface.askWhichPlayerStarts();
+
+	if (!opponentPlaysFirst)
+	{
+		possibleMoves = mover.findMoves(pieces, allPiecesAttr, true, false);
+		Move computerMove = ai.determineComputerMove(possibleMoves, pieces, allPiecesAttr);
+
+		updateGameBoardWithMove(computerMove);
+
+		userInterface.printComputerMove();
+
+		userInterface.printBoard(pieces, allPiecesAttr);
+
+
+		if (isGameOver())
+		{
+			gameIsInProgress = false;
+
+			//computer wins
+			if (victor == 1)
+			{
+				userInterface.printComputerVictory();
+			}
+			//opponent wins
+			else if (victor == 2)
+			{
+				userInterface.printPlayerVictory();
+			}
+			//tie
+			else
+			{
+				userInterface.printTie();
+			}
+
+		}
+	}
+
+
 	while (gameIsInProgress)
 	{
+		//before we ask the user for their next move, let's find the possibilites they can take
+		possibleMoves = mover.findMoves(pieces, allPiecesAttr, false, false);
+
 		userInterface.printMakeMoveRequest();
 		Move opponentMove = userInterface.getNextMove();
 
 		//check move legality
-		if (move is NOT legal)
+		//vector<Move>::iterator it;
+		//it = find(possibleMoves.begin(), possibleMoves.end(), opponentMove);
+
+		Move temp;
+		bool illegalMove = false;
+		for (int x = 0; x < possibleMoves.size(); x++)
+		{
+			temp = possibleMoves.at(x);
+			if (temp.getDestination() == temp.getDestination() && temp.getLocation() == temp.getLocation())
+			{
+				illegalMove == true;
+			}
+		}
+
+		if (illegalMove) //if we did NOT find the match, the move is illegal
 		{
 			//opponent's move was illegal
 			userInterface.printIllegalMove();
@@ -33,7 +92,7 @@ void Game::gameLoop()
 
 		updateGameBoardWithMove(opponentMove);
 		
-		userInterface.refreshBoardDisplay();
+		userInterface.printBoard(pieces, allPiecesAttr);
 
 		if (isGameOver())
 		{
@@ -58,14 +117,14 @@ void Game::gameLoop()
 			continue;
 		}
 
-
-		Move computerMove = ai.determineComputerMove();
+		possibleMoves = mover.findMoves(pieces, allPiecesAttr, true, false);
+		Move computerMove = ai.determineComputerMove(possibleMoves, pieces, allPiecesAttr);
 
 		updateGameBoardWithMove(computerMove);
 
 		userInterface.printComputerMove();
 
-		userInterface.refreshBoardDisplay();
+		userInterface.printBoard(pieces, allPiecesAttr);
 
 
 		if (isGameOver())
@@ -102,11 +161,20 @@ void Game::initHelers()
 
 void Game::initBoard()
 {
-	createBitBoards();
+	pieces = STARTING_BOARD;
+	allPiecesAttr[0] = 0x0880880F;
+	allPiecesAttr[1] = 0x0076700F;
+	allPiecesAttr[2] = 0x9A000A9F;
+	allPiecesAttr[3] = 0x0000000F;
+	allPiecesAttr[4] = 0x4500054F;
+	allPiecesAttr[5] = 0x0021200F;
+	allPiecesAttr[6] = 0x0330330F;
+	allPiecesAttr[7] = 0xFFFFFFFF;
 }
 
 void Game::initDisplay()
 {
+	cout << endl;
 
 }
 

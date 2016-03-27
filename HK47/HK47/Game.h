@@ -6,6 +6,13 @@
 #include "MoveGenerator.h"
 #include "Move.h"
 #include <vector>
+#include <algorithm>
+
+using namespace std;
+
+
+#define STARTING_BOARD 0x6D39C701C7396DFF
+
 
 class Game
 {
@@ -28,10 +35,42 @@ private:
 
 
 	// attributes for all of the pieces in play
+	// attributes indicate which piece is at that place on the board
+	// can also indicate other things if needed
+	//
 	// 8, 32-bit numbers. one for each row
 	// 0-index is the first row. lowest bit is the first column
 	// stored in this form:
 	// 0000 0000 0000 0000 0000 0000 0000 0000
+	//
+	// attribute assignments:
+	/*		
+
+
+			Empty square					  - 0	
+			Forbidden Square				  - 15
+			
+
+
+			My Pieces
+	
+			Death Star						  - 1
+			Wall							  - 2
+			TIE Fighter						  - 3
+			X Wing							  - 4
+			X Wing (non Death Star intercept) - 5
+
+
+			Opponent Pieces
+
+			Death Star						  - 6
+			Wall							  - 7
+			TIE Fighter						  - 8
+			X Wing							  - 9
+			X Wing (non Death Star intercept) - 10
+
+
+	*/
 	uint32_t allPiecesAttr[8];
 
 
@@ -47,6 +86,7 @@ private:
 	uint32_t columnSeven = 0x000000F0; // 00000000000000000000000011110000;
 	uint32_t columnEight = 0x0000000F; // 00000000000000000000000000001111;
 
+	uint64_t pieces;
 	
 	uint32_t getAttributesOfColumnForRow(uint32_t mask, uint32_t attribute);
 	void updateGameBoardWithMove(Move move);

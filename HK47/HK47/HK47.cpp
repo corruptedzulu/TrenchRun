@@ -72,7 +72,7 @@ int main()
 {
 
 	Game *game = new Game();
-	game->initHelpers();
+	//game->initHelpers();
 	game->initBoard();
 	game->initDisplay();
 	game->initAI();
