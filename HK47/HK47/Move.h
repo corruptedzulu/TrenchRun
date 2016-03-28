@@ -8,6 +8,7 @@ class Move
 	uint64_t destination;
 
 	bool isBackwardsMovement;
+	bool isCapture;
 
 	char locCol, locRow, destCol, destRow;
 
@@ -19,6 +20,7 @@ public:
 	void setStartLocation(uint64_t start);
 	void setDestinationLocation(uint64_t dest);
 	void setIsBackwardsMovement(bool back);
+	void setIsCapture(bool isCap);
 
 	uint64_t getLocation();
 	uint64_t getDestination();

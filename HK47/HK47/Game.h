@@ -19,7 +19,7 @@ class Game
 
 private:
 
-	bool gameIsInProgress;
+	bool gameIsInProgress = true;
 	int victor = 0;
 
 

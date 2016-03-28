@@ -23,6 +23,8 @@ void Game::gameLoop()
 	
 	bool opponentPlaysFirst = userInterface.askWhichPlayerStarts();
 
+	userInterface.printBoard(pieces, allPiecesAttr);
+
 	if (!opponentPlaysFirst)
 	{
 		possibleMoves = mover.findMoves(pieces, allPiecesAttr, true, false);
@@ -226,6 +228,8 @@ uint32_t Game::getAttributesOfColumnForRow(uint32_t mask, uint32_t attribute)
 
 void Game::updateGameBoardWithMove(Move move)
 {
+	pieces = pieces - move.getLocation();
+	pieces = pieces + move.getDestination();
 }
 
 bool Game::isGameOver()

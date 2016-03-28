@@ -87,7 +87,7 @@ void UserInterface::printBoard(uint64_t board, uint32_t pieces[])
 		four = getAttributesOfColumnForRow(pieces[x], 4);
 		five = getAttributesOfColumnForRow(pieces[x], 5);
 		six = getAttributesOfColumnForRow(pieces[x], 6);
-		seven = getAttributesOfColumnForRow(pieces[x], 6);
+		seven = getAttributesOfColumnForRow(pieces[x], 7);
 		eight = getAttributesOfColumnForRow(pieces[x], 8);
 
 
@@ -115,7 +115,7 @@ void UserInterface::printBoard(uint64_t board, uint32_t pieces[])
 		for (int y = 0; y < 8; y++)
 		{
 
-			textColor(DIM, pieceColors[x * 8 + y], pieceBackgrounds[x * 8 + y]);
+			//textColor(DIM, pieceColors[x * 8 + y], pieceBackgrounds[x * 8 + y]);
 			cout << pieceChars[x * 8 + y];
 		}
 
@@ -299,14 +299,14 @@ uint32_t UserInterface::getAttributesOfColumnForRow(uint32_t attributes, int ind
 
 	//shift those bits to be least significant
 	//we add one to make sure we're shifting enough (because our parameter is passed as ZERO-index)
-	attributes = attributes >> ((8 - index + 1) * 4);
+	attributes = attributes >> ((8 - (index + 1)) * 4);
 
 	return attributes;
 }
 
 char UserInterface::getCharacterForAttributeNumber(int number)
 {
-	char returnable;
+	char returnable = ' ';
 	switch (number)
 	{
 	case 0:

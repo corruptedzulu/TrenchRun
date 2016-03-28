@@ -29,6 +29,11 @@ void Move::setIsBackwardsMovement(bool back)
 	isBackwardsMovement = back;
 }
 
+void Move::setIsCapture(bool isCap)
+{
+	isCapture = isCap;
+}
+
 uint64_t Move::getLocation()
 {
 	return location;
