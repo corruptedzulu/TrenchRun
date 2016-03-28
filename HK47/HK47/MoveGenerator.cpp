@@ -16,7 +16,7 @@ MoveGenerator::~MoveGenerator()
 // the indicated player can take
 // accept: the current board state, board attributes, and who is playing this turn
 // return: vector of Move objects for each legal move
-vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool computersTurn, bool tieFighterMovedInLastTurn)
+vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool computersTurn, bool tieFighterMovedSidewaysInLastTurn)
 {
 	
 
@@ -77,14 +77,242 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 
 				switch (pieceType)
 				{
+
 				case 3:
 					//TIE Fighter
-					if (!tieFighterMovedInLastTurn)//did the TIE move last turn? if not, go ahead and check it this turn
+
+					notEnded = true;
+					while (notEnded) // south
 					{
+						// -8
+
+						//if we subtract 9 from out current location and it becomes greater than our location
+						//then we must've gone back around by subtracting past zero. assume this is not valid and terminate
+						if ((location - 8) > location)
+						{
+							notEnded = true;
+							break;
+						}
+
+						if ((location - 8) % 8 > location % 8)
+						{
+							//if the remainder (aka the column) after we move is suddenly larger
+							//then we wrapped around to the next row, so ignore and quit
+							notEnded = true;
+							break;
+						}
+
+						//move SOUTHWEST
+						location = location - 8;
+
+						//get the current row attributes
+						uint32_t localAttr = attr[location / 8];
+
+						//get the current column we're checking
+						int localIndex = location % 8;
+						char movedToContents = getNibbleFromIndicatedPosition(localAttr, localIndex);
+
+
+						//if target location is open
+						if (movedToContents == 0)
+						{
+							//add target to list of moves
+							Move possibleMove;
+							possibleMove.setStartLocation(locationUnchanging);
+							possibleMove.setDestinationLocation(location);
+							movesAvailable.push_back(possibleMove);
+						}
+
+						//if occupied by my piece
+						if (movedToContents > 0 && movedToContents < 6)
+						{
+							//stop
+							notEnded = true;
+							break;
+						}
+
+						//if occupied by opponent capturable piece
+						if (movedToContents > 6 && movedToContents < 11 && movedToContents != 7) //SKIP THE DEATH STAR! CAN NOT CAPTURE FROM THIS DIRECTION
+						{
+							//add target to list of moves
+							Move possibleMove;
+							possibleMove.setStartLocation(locationUnchanging);
+							possibleMove.setDestinationLocation(location);
+							movesAvailable.push_back(possibleMove);
+
+							//stop
+							notEnded = true;
+							break;
+						}
+
+					}
+
+					notEnded = true;
+					while (notEnded) // north
+					{
+						// +8
+
+						//if we subtract 9 from out current location and it becomes greater than our location
+						//then we must've gone back around by subtracting past zero. assume this is not valid and terminate
+						if ((location + 8) < location)
+						{
+							notEnded = true;
+							break;
+						}
+
+						if ((location + 8) % 8 < location % 8)
+						{
+							//if the remainder (aka the column) after we move is suddenly larger
+							//then we wrapped around to the next row, so ignore and quit
+							notEnded = true;
+							break;
+						}
+
+						//move SOUTHWEST
+						location = location + 8;
+
+						//get the current row attributes
+						uint32_t localAttr = attr[location / 8];
+
+						//get the current column we're checking
+						int localIndex = location % 8;
+						char movedToContents = getNibbleFromIndicatedPosition(localAttr, localIndex);
+
+
+						//if occupied by opponent capturable piece
+						if (movedToContents > 5 && movedToContents < 11 && movedToContents != 7) // CAN CAPTURE DEATH STAR
+						{
+							//add target to list of moves
+							Move possibleMove;
+							possibleMove.setStartLocation(locationUnchanging);
+							possibleMove.setDestinationLocation(location);
+							movesAvailable.push_back(possibleMove);
+
+							//stop
+							notEnded = true;
+							break;
+						}
+					}
+
+					if (!tieFighterMovedSidewaysInLastTurn)//did the TIE move last turn? if not, go ahead and check it this turn
+					{
+
+						notEnded = true;
+						while (notEnded) //east
+						{
+							// -1
+
+							//if we subtract 9 from out current location and it becomes greater than our location
+							//then we must've gone back around by subtracting past zero. assume this is not valid and terminate
+							if ((location - 1) > location)
+							{
+								notEnded = true;
+								break;
+							}
+
+							if ((location - 1) % 8 > location % 8)
+							{
+								//if the remainder (aka the column) after we move is suddenly larger
+								//then we wrapped around to the next row, so ignore and quit
+								notEnded = true;
+								break;
+							}
+
+							//move SOUTHWEST
+							location = location - 1;
+
+							//get the current row attributes
+							uint32_t localAttr = attr[location / 8];
+
+							//get the current column we're checking
+							int localIndex = location % 8;
+							char movedToContents = getNibbleFromIndicatedPosition(localAttr, localIndex);
+
+
+							//if target location is open
+							if (movedToContents == 0)
+							{
+								//add target to list of moves
+								Move possibleMove;
+								possibleMove.setStartLocation(locationUnchanging);
+								possibleMove.setDestinationLocation(location);
+								movesAvailable.push_back(possibleMove);
+							}
+
+							//if occupied by my piece
+							if (movedToContents > 0 && movedToContents < 6)
+							{
+								//stop
+								notEnded = true;
+								break;
+							}
+
+							//if occupied by opponent capturable piece
+							if (movedToContents > 6 && movedToContents < 11 && movedToContents != 7) //SKIP THE DEATH STAR! CAN NOT CAPTURE FROM THIS DIRECTION
+							{
+								//add target to list of moves
+								Move possibleMove;
+								possibleMove.setStartLocation(locationUnchanging);
+								possibleMove.setDestinationLocation(location);
+								movesAvailable.push_back(possibleMove);
+
+								//stop
+								notEnded = true;
+								break;
+							}
+						}
+
+						notEnded = true;
+						while (notEnded) // west
+						{
+							// +1
+
+							//if we subtract 9 from out current location and it becomes greater than our location
+							//then we must've gone back around by subtracting past zero. assume this is not valid and terminate
+							if ((location + 1) < location)
+							{
+								notEnded = true;
+								break;
+							}
+
+							if ((location + 1) % 8 < location % 8)
+							{
+								//if the remainder (aka the column) after we move is suddenly larger
+								//then we wrapped around to the next row, so ignore and quit
+								notEnded = true;
+								break;
+							}
+
+							//move SOUTHWEST
+							location = location + 1;
+
+							//get the current row attributes
+							uint32_t localAttr = attr[location / 8];
+
+							//get the current column we're checking
+							int localIndex = location % 8;
+							char movedToContents = getNibbleFromIndicatedPosition(localAttr, localIndex);
+
+
+							//if occupied by opponent capturable piece
+							if (movedToContents > 5 && movedToContents < 11 && movedToContents != 7) // CAN CAPTURE DEATH STAR
+							{
+								//add target to list of moves
+								Move possibleMove;
+								possibleMove.setStartLocation(locationUnchanging);
+								possibleMove.setDestinationLocation(location);
+								movesAvailable.push_back(possibleMove);
+
+								//stop
+								notEnded = true;
+								break;
+							}
+						}
 
 					}
 
 					break;
+
 				case 4:
 					//X Wing (CAN attack Death Star)
 
@@ -147,7 +375,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 						}
 						
 						//if occupied by opponent capturable piece
-						if (movedToContents > 6 && movedToContents < 11) //SKIP THE DEATH STAR! CAN NOT CAPTURE FROM THIS DIRECTION
+						if (movedToContents > 6 && movedToContents < 11 && movedToContents != 7) //SKIP THE DEATH STAR! CAN NOT CAPTURE FROM THIS DIRECTION
 						{
 							//add target to list of moves
 							Move possibleMove;
@@ -213,7 +441,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 						}
 
 						//if occupied by opponent capturable piece
-						if (movedToContents > 6 && movedToContents < 11) //SKIP THE DEATH STAR! CAN NOT CAPTURE FROM THIS DIRECTION
+						if (movedToContents > 6 && movedToContents < 11 && movedToContents != 7) //SKIP THE DEATH STAR! CAN NOT CAPTURE FROM THIS DIRECTION
 						{
 							//add target to list of moves
 							Move possibleMove;
@@ -235,6 +463,46 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 					while (notEnded)//nw
 					{
 						//plus 7
+						//if we add 7 from out current location and it becomes less than our location
+						//then we must've gone back around by adding past MAX. assume this is not valid and terminate
+						if ((location + 7) < location)
+						{
+							notEnded = true;
+							break;
+						}
+
+						if ((location + 7) % 8 < location % 8)
+						{
+							//if the remainder (aka the column) after we move is suddenly smaller
+							//then we wrapped around to the next row, so ignore and quit
+							notEnded = true;
+							break;
+						}
+
+						//move SOUTHWEST
+						location = location + 7;
+
+						//get the current row attributes
+						uint32_t localAttr = attr[location / 8];
+
+						//get the current column we're checking
+						int localIndex = location % 8;
+						char movedToContents = getNibbleFromIndicatedPosition(localAttr, localIndex);
+
+
+						//if occupied by opponent capturable piece
+						if (movedToContents > 5 && movedToContents < 11 && movedToContents != 7) //DO NOT SKIP DEATH STAR! WE WOULD BE GOING BACKWARDS IN THIS MOVE, WHICH IS ALLOWED
+						{
+							//add target to list of moves
+							Move possibleMove;
+							possibleMove.setStartLocation(locationUnchanging);
+							possibleMove.setDestinationLocation(location);
+							movesAvailable.push_back(possibleMove);
+
+							//stop
+							notEnded = true;
+							break;
+						}
 					}
 
 					notEnded = false;
@@ -268,6 +536,67 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 						char movedToContents = getNibbleFromIndicatedPosition(localAttr, localIndex);
 
 
+						//if occupied by opponent capturable piece
+						if (movedToContents > 5 && movedToContents < 11 && movedToContents != 7) //DO NOT SKIP DEATH STAR! WE WOULD BE GOING BACKWARDS IN THIS MOVE, WHICH IS ALLOWED
+						{
+							//add target to list of moves
+							Move possibleMove;
+							possibleMove.setStartLocation(locationUnchanging);
+							possibleMove.setDestinationLocation(location);
+							movesAvailable.push_back(possibleMove);
+
+							//stop
+							notEnded = true;
+							break;
+						}
+					}
+
+
+					break;
+
+				case 5:
+					//X Wing (CAN NOT attack Death Star)
+
+					//uint64_t locationsToMoveTo;
+					//locationsToMoveTo = *adjustDiagonalForPieceLocation(pieces, true);
+					//locationsToMoveTo += *adjustDiagonalForPieceLocation(pieces, false);
+
+					//locationsToMoveTo has all of the locations that this could move to
+
+
+					//figure out ne(back), nw (back), se, sw possible moves
+					//back moves only count if they are a capture. figure out caputure with attr
+
+					notEnded = false;
+					while (notEnded)//sw
+					{
+						//if we subtract 9 from out current location and it becomes greater than our location
+						//then we must've gone back around by subtracting past zero. assume this is not valid and terminate
+						if ((location - 9) > location)
+						{
+							notEnded = true;
+							break;
+						}
+
+						if ((location - 9) % 8 > location % 8)
+						{
+							//if the remainder (aka the column) after we move is suddenly larger
+							//then we wrapped around to the next row, so ignore and quit
+							notEnded = true;
+							break;
+						}
+
+						//move SOUTHWEST
+						location = location - 9;
+
+						//get the current row attributes
+						uint32_t localAttr = attr[location / 8];
+
+						//get the current column we're checking
+						int localIndex = location % 8;
+						char movedToContents = getNibbleFromIndicatedPosition(localAttr, localIndex);
+
+
 						//if target location is open
 						if (movedToContents == 0)
 						{
@@ -287,7 +616,169 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 						}
 
 						//if occupied by opponent capturable piece
-						if (movedToContents > 5 && movedToContents < 11) //DO NOT SKIP DEATH STAR! WE WOULD BE GOING BACKWARDS IN THIS MOVE, WHICH IS ALLOWED
+						if (movedToContents > 6 && movedToContents < 11 && movedToContents != 7) //SKIP THE DEATH STAR! CAN NOT CAPTURE FROM THIS DIRECTION
+						{
+							//add target to list of moves
+							Move possibleMove;
+							possibleMove.setStartLocation(locationUnchanging);
+							possibleMove.setDestinationLocation(location);
+							movesAvailable.push_back(possibleMove);
+
+							//stop
+							notEnded = true;
+							break;
+						}
+
+
+					}
+
+					notEnded = false;
+					while (notEnded)//se
+					{
+						//minus 7
+						//if we subtract 7 from out current location and it becomes greater than our location
+						//then we must've gone back around by subtracting past zero. assume this is not valid and terminate
+						if ((location - 7) > location)
+						{
+							notEnded = true;
+							break;
+						}
+
+						if ((location - 7) % 8 > location % 8)
+						{
+							//if the remainder (aka the column) after we move is suddenly larger
+							//then we wrapped around to the next row, so ignore and quit
+							notEnded = true;
+							break;
+						}
+
+						//move SOUTHWEST
+						location = location - 7;
+
+						//get the current row attributes
+						uint32_t localAttr = attr[location / 8];
+
+						//get the current column we're checking
+						int localIndex = location % 8;
+						char movedToContents = getNibbleFromIndicatedPosition(localAttr, localIndex);
+
+
+						//if target location is open
+						if (movedToContents == 0)
+						{
+							//add target to list of moves
+							Move possibleMove;
+							possibleMove.setStartLocation(locationUnchanging);
+							possibleMove.setDestinationLocation(location);
+							movesAvailable.push_back(possibleMove);
+						}
+
+						//if occupied by my piece
+						if (movedToContents > 0 && movedToContents < 6)
+						{
+							//stop
+							notEnded = true;
+							break;
+						}
+
+						//if occupied by opponent capturable piece
+						if (movedToContents > 6 && movedToContents < 11 && movedToContents != 7) //SKIP THE DEATH STAR! CAN NOT CAPTURE FROM THIS DIRECTION
+						{
+							//add target to list of moves
+							Move possibleMove;
+							possibleMove.setStartLocation(locationUnchanging);
+							possibleMove.setDestinationLocation(location);
+							movesAvailable.push_back(possibleMove);
+
+							//stop
+							notEnded = true;
+							break;
+						}
+
+
+					}
+
+
+					//only look for a capture
+					notEnded = false;
+					while (notEnded)//nw
+					{
+						//plus 7
+						//if we add 7 from out current location and it becomes less than our location
+						//then we must've gone back around by adding past MAX. assume this is not valid and terminate
+						if ((location + 7) < location)
+						{
+							notEnded = true;
+							break;
+						}
+
+						if ((location + 7) % 8 < location % 8)
+						{
+							//if the remainder (aka the column) after we move is suddenly smaller
+							//then we wrapped around to the next row, so ignore and quit
+							notEnded = true;
+							break;
+						}
+
+						//move SOUTHWEST
+						location = location + 7;
+
+						//get the current row attributes
+						uint32_t localAttr = attr[location / 8];
+
+						//get the current column we're checking
+						int localIndex = location % 8;
+						char movedToContents = getNibbleFromIndicatedPosition(localAttr, localIndex);
+
+
+						//if occupied by opponent capturable piece
+						if (movedToContents > 5 && movedToContents < 11 && movedToContents != 7) //DO NOT SKIP DEATH STAR! WE WOULD BE GOING BACKWARDS IN THIS MOVE, WHICH IS ALLOWED
+						{
+							//add target to list of moves
+							Move possibleMove;
+							possibleMove.setStartLocation(locationUnchanging);
+							possibleMove.setDestinationLocation(location);
+							movesAvailable.push_back(possibleMove);
+
+							//stop
+							notEnded = true;
+							break;
+						}
+					}
+
+					notEnded = false;
+					while (notEnded)//ne
+					{
+						//plus 9
+						//if we add 9 from out current location and it becomes less than our location
+						//then we must've gone back around by adding past MAX. assume this is not valid and terminate
+						if ((location + 9) < location)
+						{
+							notEnded = true;
+							break;
+						}
+
+						if ((location + 9) % 8 < location % 8)
+						{
+							//if the remainder (aka the column) after we move is suddenly smaller
+							//then we wrapped around to the next row, so ignore and quit
+							notEnded = true;
+							break;
+						}
+
+						//move SOUTHWEST
+						location = location + 9;
+
+						//get the current row attributes
+						uint32_t localAttr = attr[location / 8];
+
+						//get the current column we're checking
+						int localIndex = location % 8;
+						char movedToContents = getNibbleFromIndicatedPosition(localAttr, localIndex);
+
+
+						//if occupied by opponent capturable piece
+						if (movedToContents > 5 && movedToContents < 11 && movedToContents != 7) //DO NOT SKIP DEATH STAR! WE WOULD BE GOING BACKWARDS IN THIS MOVE, WHICH IS ALLOWED
 						{
 							//add target to list of moves
 							Move possibleMove;
@@ -303,10 +794,6 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 
 
 					break;
-				case 5:
-					//X Wing (CAN NOT attack Death Star)
-
-					break;
 				}
 
 			}
@@ -314,7 +801,726 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 	}
 	else
 	{
+		char pieceType;
+		for (int x = 0; x < 8; x++)// 8 rows
+		{
+			for (int y = 0; y < 8; y++)
+			{
+				pieceType = getNibbleFromIndicatedPosition(attr[x], y);
+				uint64_t mask = 0x1;
+				mask = mask << ((x * 8) + y);
+				uint64_t location = pieces & mask;
+				uint64_t locationUnchanging = location;
 
+
+
+				switch (pieceType)
+				{
+
+				case 8:
+					//TIE Fighter
+
+					notEnded = true;
+					while (notEnded) // North
+					{
+						// +8
+
+						//if we subtract 9 from out current location and it becomes greater than our location
+						//then we must've gone back around by subtracting past zero. assume this is not valid and terminate
+						if ((location + 8) < location)
+						{
+							notEnded = true;
+							break;
+						}
+
+						if ((location + 8) % 8 < location % 8)
+						{
+							//if the remainder (aka the column) after we move is suddenly larger
+							//then we wrapped around to the next row, so ignore and quit
+							notEnded = true;
+							break;
+						}
+
+						//move SOUTHWEST
+						location = location 8 8;
+
+						//get the current row attributes
+						uint32_t localAttr = attr[location / 8];
+
+						//get the current column we're checking
+						int localIndex = location % 8;
+						char movedToContents = getNibbleFromIndicatedPosition(localAttr, localIndex);
+
+
+						//if target location is open
+						if (movedToContents == 0)
+						{
+							//add target to list of moves
+							Move possibleMove;
+							possibleMove.setStartLocation(locationUnchanging);
+							possibleMove.setDestinationLocation(location);
+							movesAvailable.push_back(possibleMove);
+						}
+
+						//if occupied by my piece
+						if (movedToContents > 6 && movedToContents < 11)
+						{
+							//stop
+							notEnded = true;
+							break;
+						}
+
+						//if occupied by opponent capturable piece
+						if (movedToContents > 0 && movedToContents < 6 && movedToContents != 2) //SKIP THE DEATH STAR! CAN NOT CAPTURE FROM THIS DIRECTION
+						{
+							//add target to list of moves
+							Move possibleMove;
+							possibleMove.setStartLocation(locationUnchanging);
+							possibleMove.setDestinationLocation(location);
+							movesAvailable.push_back(possibleMove);
+
+							//stop
+							notEnded = true;
+							break;
+						}
+
+					}
+
+					notEnded = true;
+					while (notEnded) // south
+					{
+						// -8
+
+						//if we subtract 9 from out current location and it becomes greater than our location
+						//then we must've gone back around by subtracting past zero. assume this is not valid and terminate
+						if ((location - 8) > location)
+						{
+							notEnded = true;
+							break;
+						}
+
+						if ((location - 8) % 8 > location % 8)
+						{
+							//if the remainder (aka the column) after we move is suddenly larger
+							//then we wrapped around to the next row, so ignore and quit
+							notEnded = true;
+							break;
+						}
+
+						//move SOUTHWEST
+						location = location - 8;
+
+						//get the current row attributes
+						uint32_t localAttr = attr[location / 8];
+
+						//get the current column we're checking
+						int localIndex = location % 8;
+						char movedToContents = getNibbleFromIndicatedPosition(localAttr, localIndex);
+
+
+						//if occupied by opponent capturable piece
+						if (movedToContents > 0 && movedToContents < 6 && movedToContents != 2) // CAN CAPTURE DEATH STAR
+						{
+							//add target to list of moves
+							Move possibleMove;
+							possibleMove.setStartLocation(locationUnchanging);
+							possibleMove.setDestinationLocation(location);
+							movesAvailable.push_back(possibleMove);
+
+							//stop
+							notEnded = true;
+							break;
+						}
+					}
+
+					if (!tieFighterMovedSidewaysInLastTurn)//did the TIE move last turn? if not, go ahead and check it this turn
+					{
+
+						notEnded = true;
+						while (notEnded) //east
+						{
+							// -1
+
+							//if we subtract 9 from out current location and it becomes greater than our location
+							//then we must've gone back around by subtracting past zero. assume this is not valid and terminate
+							if ((location - 1) > location)
+							{
+								notEnded = true;
+								break;
+							}
+
+							if ((location - 1) % 8 > location % 8)
+							{
+								//if the remainder (aka the column) after we move is suddenly larger
+								//then we wrapped around to the next row, so ignore and quit
+								notEnded = true;
+								break;
+							}
+
+							//move SOUTHWEST
+							location = location - 1;
+
+							//get the current row attributes
+							uint32_t localAttr = attr[location / 8];
+
+							//get the current column we're checking
+							int localIndex = location % 8;
+							char movedToContents = getNibbleFromIndicatedPosition(localAttr, localIndex);
+
+
+							//if target location is open
+							if (movedToContents == 0)
+							{
+								//add target to list of moves
+								Move possibleMove;
+								possibleMove.setStartLocation(locationUnchanging);
+								possibleMove.setDestinationLocation(location);
+								movesAvailable.push_back(possibleMove);
+							}
+
+							//if occupied by my piece
+							if (movedToContents > 6 && movedToContents < 11)
+							{
+								//stop
+								notEnded = true;
+								break;
+							}
+
+							//if occupied by opponent capturable piece
+							if (movedToContents > 0 && movedToContents < 6 && movedToContents != 2) //SKIP THE DEATH STAR! CAN NOT CAPTURE FROM THIS DIRECTION
+							{
+								//add target to list of moves
+								Move possibleMove;
+								possibleMove.setStartLocation(locationUnchanging);
+								possibleMove.setDestinationLocation(location);
+								movesAvailable.push_back(possibleMove);
+
+								//stop
+								notEnded = true;
+								break;
+							}
+						}
+
+						notEnded = true;
+						while (notEnded) // west
+						{
+							// +1
+
+							//if we subtract 9 from out current location and it becomes greater than our location
+							//then we must've gone back around by subtracting past zero. assume this is not valid and terminate
+							if ((location + 1) < location)
+							{
+								notEnded = true;
+								break;
+							}
+
+							if ((location + 1) % 8 < location % 8)
+							{
+								//if the remainder (aka the column) after we move is suddenly larger
+								//then we wrapped around to the next row, so ignore and quit
+								notEnded = true;
+								break;
+							}
+
+							//move SOUTHWEST
+							location = location + 1;
+
+							//get the current row attributes
+							uint32_t localAttr = attr[location / 8];
+
+							//get the current column we're checking
+							int localIndex = location % 8;
+							char movedToContents = getNibbleFromIndicatedPosition(localAttr, localIndex);
+
+
+							//if occupied by opponent capturable piece
+							if (movedToContents > 0 && movedToContents < 6 && movedToContents != 2) // CAN CAPTURE DEATH STAR
+							{
+								//add target to list of moves
+								Move possibleMove;
+								possibleMove.setStartLocation(locationUnchanging);
+								possibleMove.setDestinationLocation(location);
+								movesAvailable.push_back(possibleMove);
+
+								//stop
+								notEnded = true;
+								break;
+							}
+						}
+
+					}
+
+					break;
+
+				case 9:
+					//X Wing (CAN attack Death Star)
+
+					//figure out ne(back), nw (back), se, sw possible moves
+					//back moves only count if they are a capture. figure out caputure with attr
+
+					notEnded = false;
+					while (notEnded)//ne
+					{
+						//if we subtract 9 from out current location and it becomes greater than our location
+						//then we must've gone back around by subtracting past zero. assume this is not valid and terminate
+						if ((location + 9) < location)
+						{
+							notEnded = true;
+							break;
+						}
+
+						if ((location + 9) % 8 < location % 8)
+						{
+							//if the remainder (aka the column) after we move is suddenly larger
+							//then we wrapped around to the next row, so ignore and quit
+							notEnded = true;
+							break;
+						}
+
+						//move SOUTHWEST
+						location = location + 9;
+
+						//get the current row attributes
+						uint32_t localAttr = attr[location / 8];
+
+						//get the current column we're checking
+						int localIndex = location % 8;
+						char movedToContents = getNibbleFromIndicatedPosition(localAttr, localIndex);
+
+
+						//if target location is open
+						if (movedToContents == 0)
+						{
+							//add target to list of moves
+							Move possibleMove;
+							possibleMove.setStartLocation(locationUnchanging);
+							possibleMove.setDestinationLocation(location);
+							movesAvailable.push_back(possibleMove);
+						}
+
+						//if occupied by my piece
+						if (movedToContents > 6 && movedToContents < 11)
+						{
+							//stop
+							notEnded = true;
+							break;
+						}
+
+						//if occupied by opponent capturable piece
+						if (movedToContents > 0 && movedToContents < 6 && movedToContents != 2) //SKIP THE DEATH STAR! CAN NOT CAPTURE FROM THIS DIRECTION
+						{
+							//add target to list of moves
+							Move possibleMove;
+							possibleMove.setStartLocation(locationUnchanging);
+							possibleMove.setDestinationLocation(location);
+							movesAvailable.push_back(possibleMove);
+
+							//stop
+							notEnded = true;
+							break;
+						}
+
+
+					}
+
+					notEnded = false;
+					while (notEnded)//nw
+					{
+						//minus 7
+						//if we subtract 7 from out current location and it becomes greater than our location
+						//then we must've gone back around by subtracting past zero. assume this is not valid and terminate
+						if ((location + 7) < location)
+						{
+							notEnded = true;
+							break;
+						}
+
+						if ((location + 7) % 8 < location % 8)
+						{
+							//if the remainder (aka the column) after we move is suddenly larger
+							//then we wrapped around to the next row, so ignore and quit
+							notEnded = true;
+							break;
+						}
+
+						//move SOUTHWEST
+						location = location + 7;
+
+						//get the current row attributes
+						uint32_t localAttr = attr[location / 8];
+
+						//get the current column we're checking
+						int localIndex = location % 8;
+						char movedToContents = getNibbleFromIndicatedPosition(localAttr, localIndex);
+
+
+						//if target location is open
+						if (movedToContents == 0)
+						{
+							//add target to list of moves
+							Move possibleMove;
+							possibleMove.setStartLocation(locationUnchanging);
+							possibleMove.setDestinationLocation(location);
+							movesAvailable.push_back(possibleMove);
+						}
+
+						//if occupied by my piece
+						if (movedToContents > 6 && movedToContents < 11)
+						{
+							//stop
+							notEnded = true;
+							break;
+						}
+
+						//if occupied by opponent capturable piece
+						if (movedToContents > 0 && movedToContents < 6 && movedToContents != 2) //SKIP THE DEATH STAR! CAN NOT CAPTURE FROM THIS DIRECTION
+						{
+							//add target to list of moves
+							Move possibleMove;
+							possibleMove.setStartLocation(locationUnchanging);
+							possibleMove.setDestinationLocation(location);
+							movesAvailable.push_back(possibleMove);
+
+							//stop
+							notEnded = true;
+							break;
+						}
+
+
+					}
+
+
+					//only look for a capture
+					notEnded = false;
+					while (notEnded)//se
+					{
+						//plus 7
+						//if we add 7 from out current location and it becomes less than our location
+						//then we must've gone back around by adding past MAX. assume this is not valid and terminate
+						if ((location - 7) > location)
+						{
+							notEnded = true;
+							break;
+						}
+
+						if ((location - 7) % 8 > location % 8)
+						{
+							//if the remainder (aka the column) after we move is suddenly smaller
+							//then we wrapped around to the next row, so ignore and quit
+							notEnded = true;
+							break;
+						}
+
+						//move SOUTHWEST
+						location = location - 7;
+
+						//get the current row attributes
+						uint32_t localAttr = attr[location / 8];
+
+						//get the current column we're checking
+						int localIndex = location % 8;
+						char movedToContents = getNibbleFromIndicatedPosition(localAttr, localIndex);
+
+
+						//if occupied by opponent capturable piece
+						if (movedToContents > 0 && movedToContents < 6 && movedToContents != 2) //SKIP THE DEATH STAR! CAN NOT CAPTURE FROM THIS DIRECTION
+						{
+							//add target to list of moves
+							Move possibleMove;
+							possibleMove.setStartLocation(locationUnchanging);
+							possibleMove.setDestinationLocation(location);
+							movesAvailable.push_back(possibleMove);
+
+							//stop
+							notEnded = true;
+							break;
+						}
+					}
+
+					notEnded = false;
+					while (notEnded)//sw
+					{
+						//plus 9
+						//if we add 9 from out current location and it becomes less than our location
+						//then we must've gone back around by adding past MAX. assume this is not valid and terminate
+						if ((location - 9) > location)
+						{
+							notEnded = true;
+							break;
+						}
+
+						if ((location - 9) % 8 > location % 8)
+						{
+							//if the remainder (aka the column) after we move is suddenly smaller
+							//then we wrapped around to the next row, so ignore and quit
+							notEnded = true;
+							break;
+						}
+
+						//move SOUTHWEST
+						location = location - 9;
+
+						//get the current row attributes
+						uint32_t localAttr = attr[location / 8];
+
+						//get the current column we're checking
+						int localIndex = location % 8;
+						char movedToContents = getNibbleFromIndicatedPosition(localAttr, localIndex);
+
+						//if occupied by opponent capturable piece
+						if (movedToContents > 0 && movedToContents < 6 && movedToContents != 2) //SKIP THE DEATH STAR! CAN NOT CAPTURE FROM THIS DIRECTION
+						{
+							//add target to list of moves
+							Move possibleMove;
+							possibleMove.setStartLocation(locationUnchanging);
+							possibleMove.setDestinationLocation(location);
+							movesAvailable.push_back(possibleMove);
+
+							//stop
+							notEnded = true;
+							break;
+						}
+					}
+
+
+					break;
+
+				case 10:
+					//X Wing (CAN NOT attack Death Star)
+
+					//figure out ne(back), nw (back), se, sw possible moves
+					//back moves only count if they are a capture. figure out caputure with attr
+
+					notEnded = false;
+					while (notEnded)//ne
+					{
+						//if we subtract 9 from out current location and it becomes greater than our location
+						//then we must've gone back around by subtracting past zero. assume this is not valid and terminate
+						if ((location + 9) < location)
+						{
+							notEnded = true;
+							break;
+						}
+
+						if ((location + 9) % 8 < location % 8)
+						{
+							//if the remainder (aka the column) after we move is suddenly larger
+							//then we wrapped around to the next row, so ignore and quit
+							notEnded = true;
+							break;
+						}
+
+						//move SOUTHWEST
+						location = location + 9;
+
+						//get the current row attributes
+						uint32_t localAttr = attr[location / 8];
+
+						//get the current column we're checking
+						int localIndex = location % 8;
+						char movedToContents = getNibbleFromIndicatedPosition(localAttr, localIndex);
+
+
+						//if target location is open
+						if (movedToContents == 0)
+						{
+							//add target to list of moves
+							Move possibleMove;
+							possibleMove.setStartLocation(locationUnchanging);
+							possibleMove.setDestinationLocation(location);
+							movesAvailable.push_back(possibleMove);
+						}
+
+						//if occupied by my piece
+						if (movedToContents > 6 && movedToContents < 11)
+						{
+							//stop
+							notEnded = true;
+							break;
+						}
+
+						//if occupied by opponent capturable piece
+						if (movedToContents > 0 && movedToContents < 6 && movedToContents != 2) //SKIP THE DEATH STAR! CAN NOT CAPTURE FROM THIS DIRECTION
+						{
+							//add target to list of moves
+							Move possibleMove;
+							possibleMove.setStartLocation(locationUnchanging);
+							possibleMove.setDestinationLocation(location);
+							movesAvailable.push_back(possibleMove);
+
+							//stop
+							notEnded = true;
+							break;
+						}
+
+
+					}
+
+					notEnded = false;
+					while (notEnded)//nw
+					{
+						//minus 7
+						//if we subtract 7 from out current location and it becomes greater than our location
+						//then we must've gone back around by subtracting past zero. assume this is not valid and terminate
+						if ((location + 7) < location)
+						{
+							notEnded = true;
+							break;
+						}
+
+						if ((location + 7) % 8 < location % 8)
+						{
+							//if the remainder (aka the column) after we move is suddenly larger
+							//then we wrapped around to the next row, so ignore and quit
+							notEnded = true;
+							break;
+						}
+
+						//move SOUTHWEST
+						location = location + 7;
+
+						//get the current row attributes
+						uint32_t localAttr = attr[location / 8];
+
+						//get the current column we're checking
+						int localIndex = location % 8;
+						char movedToContents = getNibbleFromIndicatedPosition(localAttr, localIndex);
+
+
+						//if target location is open
+						if (movedToContents == 0)
+						{
+							//add target to list of moves
+							Move possibleMove;
+							possibleMove.setStartLocation(locationUnchanging);
+							possibleMove.setDestinationLocation(location);
+							movesAvailable.push_back(possibleMove);
+						}
+
+						//if occupied by my piece
+						if (movedToContents > 6 && movedToContents < 11)
+						{
+							//stop
+							notEnded = true;
+							break;
+						}
+
+						//if occupied by opponent capturable piece
+						if (movedToContents > 0 && movedToContents < 6 && movedToContents != 2) //SKIP THE DEATH STAR! CAN NOT CAPTURE FROM THIS DIRECTION
+						{
+							//add target to list of moves
+							Move possibleMove;
+							possibleMove.setStartLocation(locationUnchanging);
+							possibleMove.setDestinationLocation(location);
+							movesAvailable.push_back(possibleMove);
+
+							//stop
+							notEnded = true;
+							break;
+						}
+
+
+					}
+
+
+					//only look for a capture
+					notEnded = false;
+					while (notEnded)//se
+					{
+						//plus 7
+						//if we add 7 from out current location and it becomes less than our location
+						//then we must've gone back around by adding past MAX. assume this is not valid and terminate
+						if ((location - 7) > location)
+						{
+							notEnded = true;
+							break;
+						}
+
+						if ((location - 7) % 8 > location % 8)
+						{
+							//if the remainder (aka the column) after we move is suddenly smaller
+							//then we wrapped around to the next row, so ignore and quit
+							notEnded = true;
+							break;
+						}
+
+						//move SOUTHWEST
+						location = location - 7;
+
+						//get the current row attributes
+						uint32_t localAttr = attr[location / 8];
+
+						//get the current column we're checking
+						int localIndex = location % 8;
+						char movedToContents = getNibbleFromIndicatedPosition(localAttr, localIndex);
+
+
+						//if occupied by opponent capturable piece
+						if (movedToContents > 0 && movedToContents < 6 && movedToContents != 2) //SKIP THE DEATH STAR! CAN NOT CAPTURE FROM THIS DIRECTION
+						{
+							//add target to list of moves
+							Move possibleMove;
+							possibleMove.setStartLocation(locationUnchanging);
+							possibleMove.setDestinationLocation(location);
+							movesAvailable.push_back(possibleMove);
+
+							//stop
+							notEnded = true;
+							break;
+						}
+					}
+
+					notEnded = false;
+					while (notEnded)//sw
+					{
+						//plus 9
+						//if we add 9 from out current location and it becomes less than our location
+						//then we must've gone back around by adding past MAX. assume this is not valid and terminate
+						if ((location - 9) > location)
+						{
+							notEnded = true;
+							break;
+						}
+
+						if ((location - 9) % 8 > location % 8)
+						{
+							//if the remainder (aka the column) after we move is suddenly smaller
+							//then we wrapped around to the next row, so ignore and quit
+							notEnded = true;
+							break;
+						}
+
+						//move SOUTHWEST
+						location = location - 9;
+
+						//get the current row attributes
+						uint32_t localAttr = attr[location / 8];
+
+						//get the current column we're checking
+						int localIndex = location % 8;
+						char movedToContents = getNibbleFromIndicatedPosition(localAttr, localIndex);
+
+						//if occupied by opponent capturable piece
+						if (movedToContents > 0 && movedToContents < 6 && movedToContents != 2) //SKIP THE DEATH STAR! CAN NOT CAPTURE FROM THIS DIRECTION
+						{
+							//add target to list of moves
+							Move possibleMove;
+							possibleMove.setStartLocation(locationUnchanging);
+							possibleMove.setDestinationLocation(location);
+							movesAvailable.push_back(possibleMove);
+
+							//stop
+							notEnded = true;
+							break;
+						}
+					}
+
+
+					break;
+				}
+
+			}
+		}
 	}
 
  	return movesAvailable;
