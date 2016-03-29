@@ -25,7 +25,7 @@ public:
 	void findMovesForPiece(BitBoard piece);
 	void comparePossibleMovesWithBoard(BitBoard piece, BitBoard otherPieces);
 
-	char getNibbleFromIndicatedPosition(uint32_t bits, int index);
+	int getNibbleFromIndicatedPosition(uint32_t bits, int index);
 	char* adjustDiagonalForPieceLocation(uint64_t loc, bool swnediag);
 };
 

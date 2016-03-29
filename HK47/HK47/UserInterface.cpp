@@ -116,7 +116,7 @@ void UserInterface::printBoard(uint64_t board, uint32_t pieces[])
 		{
 
 			//textColor(DIM, pieceColors[x * 8 + y], pieceBackgrounds[x * 8 + y]);
-			cout << pieceChars[x * 8 + y];
+			cout << pieceChars[x * 8 + y] << " ";
 		}
 
 		cout << endl;

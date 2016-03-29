@@ -62,7 +62,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 	if (computersTurn)
 	{
 		//look at the attributes of each row
-		char pieceType;
+		int pieceType;
 		for (int x = 0; x < 8; x++)// 8 rows
 		{
 			for (int y = 0; y < 8; y++)
@@ -81,6 +81,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 				case 3:
 					//TIE Fighter
 
+					location = locationUnchanging;
 					notEnded = true;
 					while (notEnded) // south
 					{
@@ -90,7 +91,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 						//then we must've gone back around by subtracting past zero. assume this is not valid and terminate
 						if ((location - 8) > location)
 						{
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
@@ -98,7 +99,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 						{
 							//if the remainder (aka the column) after we move is suddenly larger
 							//then we wrapped around to the next row, so ignore and quit
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
@@ -127,7 +128,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 						if (movedToContents > 0 && movedToContents < 6)
 						{
 							//stop
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
@@ -141,12 +142,13 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 							movesAvailable.push_back(possibleMove);
 
 							//stop
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
 					}
 
+					location = locationUnchanging;
 					notEnded = true;
 					while (notEnded) // north
 					{
@@ -156,7 +158,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 						//then we must've gone back around by subtracting past zero. assume this is not valid and terminate
 						if ((location + 8) < location)
 						{
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
@@ -164,7 +166,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 						{
 							//if the remainder (aka the column) after we move is suddenly larger
 							//then we wrapped around to the next row, so ignore and quit
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
@@ -189,7 +191,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 							movesAvailable.push_back(possibleMove);
 
 							//stop
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 					}
@@ -197,6 +199,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 					if (!tieFighterMovedSidewaysInLastTurn)//did the TIE move last turn? if not, go ahead and check it this turn
 					{
 
+						location = locationUnchanging;
 						notEnded = true;
 						while (notEnded) //east
 						{
@@ -206,7 +209,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 							//then we must've gone back around by subtracting past zero. assume this is not valid and terminate
 							if ((location - 1) > location)
 							{
-								notEnded = true;
+								notEnded = false;
 								break;
 							}
 
@@ -214,7 +217,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 							{
 								//if the remainder (aka the column) after we move is suddenly larger
 								//then we wrapped around to the next row, so ignore and quit
-								notEnded = true;
+								notEnded = false;
 								break;
 							}
 
@@ -243,7 +246,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 							if (movedToContents > 0 && movedToContents < 6)
 							{
 								//stop
-								notEnded = true;
+								notEnded = false;
 								break;
 							}
 
@@ -257,11 +260,12 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 								movesAvailable.push_back(possibleMove);
 
 								//stop
-								notEnded = true;
+								notEnded = false;
 								break;
 							}
 						}
 
+						location = locationUnchanging;
 						notEnded = true;
 						while (notEnded) // west
 						{
@@ -271,7 +275,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 							//then we must've gone back around by subtracting past zero. assume this is not valid and terminate
 							if ((location + 1) < location)
 							{
-								notEnded = true;
+								notEnded = false;
 								break;
 							}
 
@@ -279,7 +283,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 							{
 								//if the remainder (aka the column) after we move is suddenly larger
 								//then we wrapped around to the next row, so ignore and quit
-								notEnded = true;
+								notEnded = false;
 								break;
 							}
 
@@ -293,6 +297,23 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 							int localIndex = location % 8;
 							char movedToContents = getNibbleFromIndicatedPosition(localAttr, localIndex);
 
+							//if target location is open
+							if (movedToContents == 0)
+							{
+								//add target to list of moves
+								Move possibleMove;
+								possibleMove.setStartLocation(locationUnchanging);
+								possibleMove.setDestinationLocation(location);
+								movesAvailable.push_back(possibleMove);
+							}
+
+							//if occupied by my piece
+							if (movedToContents > 0 && movedToContents < 6)
+							{
+								//stop
+								notEnded = false;
+								break;
+							}
 
 							//if occupied by opponent capturable piece
 							if (movedToContents > 5 && movedToContents < 11 && movedToContents != 7) // CAN CAPTURE DEATH STAR
@@ -304,7 +325,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 								movesAvailable.push_back(possibleMove);
 
 								//stop
-								notEnded = true;
+								notEnded = false;
 								break;
 							}
 						}
@@ -326,14 +347,15 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 					//figure out ne(back), nw (back), se, sw possible moves
 					//back moves only count if they are a capture. figure out caputure with attr
 
-					notEnded = false;
+					location = locationUnchanging;
+					notEnded = true;
 					while (notEnded)//sw
 					{
 						//if we subtract 9 from out current location and it becomes greater than our location
 						//then we must've gone back around by subtracting past zero. assume this is not valid and terminate
 						if ((location - 9) > location)
 						{
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
@@ -341,7 +363,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 						{
 							//if the remainder (aka the column) after we move is suddenly larger
 							//then we wrapped around to the next row, so ignore and quit
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
@@ -370,7 +392,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 						if (movedToContents > 0 && movedToContents < 6 )
 						{
 							//stop
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 						
@@ -384,14 +406,15 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 							movesAvailable.push_back(possibleMove);
 
 							//stop
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 						
 						
 					}
 
-					notEnded = false;
+					location = locationUnchanging;
+					notEnded = true;
 					while (notEnded)//se
 					{
 						//minus 7
@@ -399,7 +422,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 						//then we must've gone back around by subtracting past zero. assume this is not valid and terminate
 						if ((location - 7) > location)
 						{
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
@@ -407,7 +430,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 						{
 							//if the remainder (aka the column) after we move is suddenly larger
 							//then we wrapped around to the next row, so ignore and quit
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
@@ -436,7 +459,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 						if (movedToContents > 0 && movedToContents < 6)
 						{
 							//stop
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
@@ -450,7 +473,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 							movesAvailable.push_back(possibleMove);
 
 							//stop
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
@@ -459,7 +482,8 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 
 
 					//only look for a capture
-					notEnded = false;
+					location = locationUnchanging;
+					notEnded = true;
 					while (notEnded)//nw
 					{
 						//plus 7
@@ -467,7 +491,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 						//then we must've gone back around by adding past MAX. assume this is not valid and terminate
 						if ((location + 7) < location)
 						{
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
@@ -475,7 +499,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 						{
 							//if the remainder (aka the column) after we move is suddenly smaller
 							//then we wrapped around to the next row, so ignore and quit
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
@@ -500,12 +524,13 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 							movesAvailable.push_back(possibleMove);
 
 							//stop
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 					}
 
-					notEnded = false;
+					location = locationUnchanging;
+					notEnded = true;
 					while (notEnded)//ne
 					{
 						//plus 9
@@ -513,7 +538,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 						//then we must've gone back around by adding past MAX. assume this is not valid and terminate
 						if ((location + 9) < location)
 						{
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
@@ -521,7 +546,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 						{
 							//if the remainder (aka the column) after we move is suddenly smaller
 							//then we wrapped around to the next row, so ignore and quit
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
@@ -546,7 +571,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 							movesAvailable.push_back(possibleMove);
 
 							//stop
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 					}
@@ -567,14 +592,15 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 					//figure out ne(back), nw (back), se, sw possible moves
 					//back moves only count if they are a capture. figure out caputure with attr
 
-					notEnded = false;
+					location = locationUnchanging;
+					notEnded = true;
 					while (notEnded)//sw
 					{
 						//if we subtract 9 from out current location and it becomes greater than our location
 						//then we must've gone back around by subtracting past zero. assume this is not valid and terminate
 						if ((location - 9) > location)
 						{
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
@@ -582,7 +608,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 						{
 							//if the remainder (aka the column) after we move is suddenly larger
 							//then we wrapped around to the next row, so ignore and quit
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
@@ -611,7 +637,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 						if (movedToContents > 0 && movedToContents < 6)
 						{
 							//stop
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
@@ -625,14 +651,15 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 							movesAvailable.push_back(possibleMove);
 
 							//stop
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
 
 					}
 
-					notEnded = false;
+					location = locationUnchanging;
+					notEnded = true;
 					while (notEnded)//se
 					{
 						//minus 7
@@ -640,7 +667,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 						//then we must've gone back around by subtracting past zero. assume this is not valid and terminate
 						if ((location - 7) > location)
 						{
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
@@ -648,7 +675,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 						{
 							//if the remainder (aka the column) after we move is suddenly larger
 							//then we wrapped around to the next row, so ignore and quit
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
@@ -677,7 +704,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 						if (movedToContents > 0 && movedToContents < 6)
 						{
 							//stop
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
@@ -691,7 +718,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 							movesAvailable.push_back(possibleMove);
 
 							//stop
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
@@ -700,7 +727,8 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 
 
 					//only look for a capture
-					notEnded = false;
+					location = locationUnchanging;
+					notEnded = true;
 					while (notEnded)//nw
 					{
 						//plus 7
@@ -708,7 +736,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 						//then we must've gone back around by adding past MAX. assume this is not valid and terminate
 						if ((location + 7) < location)
 						{
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
@@ -716,7 +744,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 						{
 							//if the remainder (aka the column) after we move is suddenly smaller
 							//then we wrapped around to the next row, so ignore and quit
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
@@ -741,12 +769,13 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 							movesAvailable.push_back(possibleMove);
 
 							//stop
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 					}
 
-					notEnded = false;
+					location = locationUnchanging;
+					notEnded = true;
 					while (notEnded)//ne
 					{
 						//plus 9
@@ -754,7 +783,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 						//then we must've gone back around by adding past MAX. assume this is not valid and terminate
 						if ((location + 9) < location)
 						{
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
@@ -762,7 +791,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 						{
 							//if the remainder (aka the column) after we move is suddenly smaller
 							//then we wrapped around to the next row, so ignore and quit
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
@@ -787,7 +816,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 							movesAvailable.push_back(possibleMove);
 
 							//stop
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 					}
@@ -801,7 +830,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 	}
 	else
 	{
-		char pieceType;
+		int pieceType;
 		for (int x = 0; x < 8; x++)// 8 rows
 		{
 			for (int y = 0; y < 8; y++)
@@ -820,6 +849,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 				case 8:
 					//TIE Fighter
 
+					location = locationUnchanging;
 					notEnded = true;
 					while (notEnded) // North
 					{
@@ -829,7 +859,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 						//then we must've gone back around by subtracting past zero. assume this is not valid and terminate
 						if ((location + 8) < location)
 						{
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
@@ -837,12 +867,12 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 						{
 							//if the remainder (aka the column) after we move is suddenly larger
 							//then we wrapped around to the next row, so ignore and quit
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
 						//move SOUTHWEST
-						location = location 8 8;
+						location = location + 8;
 
 						//get the current row attributes
 						uint32_t localAttr = attr[location / 8];
@@ -866,7 +896,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 						if (movedToContents > 6 && movedToContents < 11)
 						{
 							//stop
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
@@ -880,12 +910,13 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 							movesAvailable.push_back(possibleMove);
 
 							//stop
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
 					}
 
+					location = locationUnchanging;
 					notEnded = true;
 					while (notEnded) // south
 					{
@@ -895,7 +926,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 						//then we must've gone back around by subtracting past zero. assume this is not valid and terminate
 						if ((location - 8) > location)
 						{
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
@@ -903,7 +934,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 						{
 							//if the remainder (aka the column) after we move is suddenly larger
 							//then we wrapped around to the next row, so ignore and quit
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
@@ -928,7 +959,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 							movesAvailable.push_back(possibleMove);
 
 							//stop
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 					}
@@ -936,6 +967,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 					if (!tieFighterMovedSidewaysInLastTurn)//did the TIE move last turn? if not, go ahead and check it this turn
 					{
 
+						location = locationUnchanging;
 						notEnded = true;
 						while (notEnded) //east
 						{
@@ -945,7 +977,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 							//then we must've gone back around by subtracting past zero. assume this is not valid and terminate
 							if ((location - 1) > location)
 							{
-								notEnded = true;
+								notEnded = false;
 								break;
 							}
 
@@ -953,7 +985,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 							{
 								//if the remainder (aka the column) after we move is suddenly larger
 								//then we wrapped around to the next row, so ignore and quit
-								notEnded = true;
+								notEnded = false;
 								break;
 							}
 
@@ -982,7 +1014,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 							if (movedToContents > 6 && movedToContents < 11)
 							{
 								//stop
-								notEnded = true;
+								notEnded = false;
 								break;
 							}
 
@@ -996,11 +1028,12 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 								movesAvailable.push_back(possibleMove);
 
 								//stop
-								notEnded = true;
+								notEnded = false;
 								break;
 							}
 						}
 
+						location = locationUnchanging;
 						notEnded = true;
 						while (notEnded) // west
 						{
@@ -1010,7 +1043,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 							//then we must've gone back around by subtracting past zero. assume this is not valid and terminate
 							if ((location + 1) < location)
 							{
-								notEnded = true;
+								notEnded = false;
 								break;
 							}
 
@@ -1018,7 +1051,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 							{
 								//if the remainder (aka the column) after we move is suddenly larger
 								//then we wrapped around to the next row, so ignore and quit
-								notEnded = true;
+								notEnded = false;
 								break;
 							}
 
@@ -1032,6 +1065,23 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 							int localIndex = location % 8;
 							char movedToContents = getNibbleFromIndicatedPosition(localAttr, localIndex);
 
+							//if target location is open
+							if (movedToContents == 0)
+							{
+								//add target to list of moves
+								Move possibleMove;
+								possibleMove.setStartLocation(locationUnchanging);
+								possibleMove.setDestinationLocation(location);
+								movesAvailable.push_back(possibleMove);
+							}
+
+							//if occupied by my piece
+							if (movedToContents > 6 && movedToContents < 11)
+							{
+								//stop
+								notEnded = false;
+								break;
+							}
 
 							//if occupied by opponent capturable piece
 							if (movedToContents > 0 && movedToContents < 6 && movedToContents != 2) // CAN CAPTURE DEATH STAR
@@ -1043,7 +1093,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 								movesAvailable.push_back(possibleMove);
 
 								//stop
-								notEnded = true;
+								notEnded = false;
 								break;
 							}
 						}
@@ -1058,14 +1108,15 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 					//figure out ne(back), nw (back), se, sw possible moves
 					//back moves only count if they are a capture. figure out caputure with attr
 
-					notEnded = false;
+					location = locationUnchanging;
+					notEnded = true;
 					while (notEnded)//ne
 					{
 						//if we subtract 9 from out current location and it becomes greater than our location
 						//then we must've gone back around by subtracting past zero. assume this is not valid and terminate
 						if ((location + 9) < location)
 						{
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
@@ -1073,7 +1124,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 						{
 							//if the remainder (aka the column) after we move is suddenly larger
 							//then we wrapped around to the next row, so ignore and quit
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
@@ -1102,7 +1153,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 						if (movedToContents > 6 && movedToContents < 11)
 						{
 							//stop
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
@@ -1116,14 +1167,15 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 							movesAvailable.push_back(possibleMove);
 
 							//stop
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
 
 					}
 
-					notEnded = false;
+					location = locationUnchanging;
+					notEnded = true;
 					while (notEnded)//nw
 					{
 						//minus 7
@@ -1131,7 +1183,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 						//then we must've gone back around by subtracting past zero. assume this is not valid and terminate
 						if ((location + 7) < location)
 						{
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
@@ -1139,7 +1191,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 						{
 							//if the remainder (aka the column) after we move is suddenly larger
 							//then we wrapped around to the next row, so ignore and quit
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
@@ -1168,7 +1220,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 						if (movedToContents > 6 && movedToContents < 11)
 						{
 							//stop
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
@@ -1182,7 +1234,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 							movesAvailable.push_back(possibleMove);
 
 							//stop
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
@@ -1191,7 +1243,8 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 
 
 					//only look for a capture
-					notEnded = false;
+					location = locationUnchanging;
+					notEnded = true;
 					while (notEnded)//se
 					{
 						//plus 7
@@ -1199,7 +1252,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 						//then we must've gone back around by adding past MAX. assume this is not valid and terminate
 						if ((location - 7) > location)
 						{
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
@@ -1207,7 +1260,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 						{
 							//if the remainder (aka the column) after we move is suddenly smaller
 							//then we wrapped around to the next row, so ignore and quit
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
@@ -1232,12 +1285,13 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 							movesAvailable.push_back(possibleMove);
 
 							//stop
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 					}
 
-					notEnded = false;
+					location = locationUnchanging;
+					notEnded = true;
 					while (notEnded)//sw
 					{
 						//plus 9
@@ -1245,7 +1299,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 						//then we must've gone back around by adding past MAX. assume this is not valid and terminate
 						if ((location - 9) > location)
 						{
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
@@ -1253,7 +1307,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 						{
 							//if the remainder (aka the column) after we move is suddenly smaller
 							//then we wrapped around to the next row, so ignore and quit
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
@@ -1277,7 +1331,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 							movesAvailable.push_back(possibleMove);
 
 							//stop
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 					}
@@ -1291,14 +1345,15 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 					//figure out ne(back), nw (back), se, sw possible moves
 					//back moves only count if they are a capture. figure out caputure with attr
 
-					notEnded = false;
+					location = locationUnchanging;
+					notEnded = true;
 					while (notEnded)//ne
 					{
 						//if we subtract 9 from out current location and it becomes greater than our location
 						//then we must've gone back around by subtracting past zero. assume this is not valid and terminate
 						if ((location + 9) < location)
 						{
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
@@ -1306,7 +1361,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 						{
 							//if the remainder (aka the column) after we move is suddenly larger
 							//then we wrapped around to the next row, so ignore and quit
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
@@ -1335,7 +1390,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 						if (movedToContents > 6 && movedToContents < 11)
 						{
 							//stop
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
@@ -1349,14 +1404,15 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 							movesAvailable.push_back(possibleMove);
 
 							//stop
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
 
 					}
 
-					notEnded = false;
+					location = locationUnchanging;
+					notEnded = true;
 					while (notEnded)//nw
 					{
 						//minus 7
@@ -1364,7 +1420,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 						//then we must've gone back around by subtracting past zero. assume this is not valid and terminate
 						if ((location + 7) < location)
 						{
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
@@ -1372,7 +1428,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 						{
 							//if the remainder (aka the column) after we move is suddenly larger
 							//then we wrapped around to the next row, so ignore and quit
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
@@ -1401,7 +1457,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 						if (movedToContents > 6 && movedToContents < 11)
 						{
 							//stop
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
@@ -1415,7 +1471,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 							movesAvailable.push_back(possibleMove);
 
 							//stop
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
@@ -1424,7 +1480,8 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 
 
 					//only look for a capture
-					notEnded = false;
+					location = locationUnchanging;
+					notEnded = true;
 					while (notEnded)//se
 					{
 						//plus 7
@@ -1432,7 +1489,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 						//then we must've gone back around by adding past MAX. assume this is not valid and terminate
 						if ((location - 7) > location)
 						{
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
@@ -1440,7 +1497,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 						{
 							//if the remainder (aka the column) after we move is suddenly smaller
 							//then we wrapped around to the next row, so ignore and quit
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
@@ -1465,12 +1522,13 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 							movesAvailable.push_back(possibleMove);
 
 							//stop
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 					}
 
-					notEnded = false;
+					location = locationUnchanging;
+					notEnded = true;
 					while (notEnded)//sw
 					{
 						//plus 9
@@ -1478,7 +1536,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 						//then we must've gone back around by adding past MAX. assume this is not valid and terminate
 						if ((location - 9) > location)
 						{
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
@@ -1486,7 +1544,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 						{
 							//if the remainder (aka the column) after we move is suddenly smaller
 							//then we wrapped around to the next row, so ignore and quit
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 
@@ -1510,7 +1568,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 							movesAvailable.push_back(possibleMove);
 
 							//stop
-							notEnded = true;
+							notEnded = false;
 							break;
 						}
 					}
@@ -1526,7 +1584,7 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
  	return movesAvailable;
 }
 
-char MoveGenerator::getNibbleFromIndicatedPosition(uint32_t bits, int index)
+int MoveGenerator::getNibbleFromIndicatedPosition(uint32_t bits, int index)
 {
 	//char val;
 	uint32_t mask = 0xF0000000;
@@ -1539,7 +1597,7 @@ char MoveGenerator::getNibbleFromIndicatedPosition(uint32_t bits, int index)
 
 	//shift those bits to be least significant
 	//we add one to make sure we're shifting enough (because our parameter is passed as ZERO-index)
-	bits = bits >> ((8 - index + 1) * 4);
+	bits = bits >> ((8 - (index + 1)) * 4);
 	
 	return bits;
 
