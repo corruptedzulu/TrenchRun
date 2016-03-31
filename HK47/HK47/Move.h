@@ -1,6 +1,7 @@
 #pragma once
 
 #include "BitBoard.h"
+#include <ctype.h>
 
 class Move
 {
@@ -28,7 +29,7 @@ public:
 	void moveToLocation(uint64_t d);
 	void moveToLocation(char row, char col);
 
-	uint64_t convertRowColToBitBoard(char row, char col);
+	uint64_t convertColRowToBitBoard(char col, char row);
 	char convertOpponentViewToMyViewRow(char row);
 	char convertOpponentViewToMyViewCol(char col);
 

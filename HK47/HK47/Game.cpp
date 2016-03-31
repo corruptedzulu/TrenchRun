@@ -73,14 +73,16 @@ void Game::gameLoop()
 		//vector<Move>::iterator it;
 		//it = find(possibleMoves.begin(), possibleMoves.end(), opponentMove);
 
+
+		//TODO: this is not correctly identifying matches
 		Move temp;
-		bool illegalMove = false;
+		bool illegalMove = true;
 		for (int x = 0; x < possibleMoves.size(); x++)
 		{
 			temp = possibleMoves.at(x);
-			if (temp.getDestination() == temp.getDestination() && temp.getLocation() == temp.getLocation())
+			if (temp.getDestination() == opponentMove.getDestination() && temp.getLocation() == opponentMove.getLocation())
 			{
-				illegalMove == true;
+				illegalMove == false;
 			}
 		}
 

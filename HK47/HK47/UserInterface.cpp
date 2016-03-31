@@ -216,11 +216,12 @@ Move UserInterface::getNextMove()
 
 	//convert the first two characters (respresenting ROW and COLUMN) into a bitboard of that location
 	//set that as the starting location
-	desiredMove.setStartLocation(desiredMove.convertRowColToBitBoard(move[0], move[1]));
+	desiredMove.setStartLocation(desiredMove.convertColRowToBitBoard(move[0], move[1]));
 
 	//convert the second two characters (representing ROW and COLUMN) into a bitboard of that location
 	//have the Move generated the ending location
-	desiredMove.moveToLocation(desiredMove.convertRowColToBitBoard(move[2], move[3]));
+	//desiredMove.moveToLocation(desiredMove.convertRowColToBitBoard(move[2], move[3]));
+	desiredMove.setDestinationLocation(desiredMove.convertColRowToBitBoard(move[2], move[3]));
 
 	desiredMove.setIsBackwardsMovement(move[1] > move[3]);
 

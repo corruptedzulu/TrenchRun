@@ -53,7 +53,7 @@ void Move::moveToLocation(char row, char col)
 {
 }
 
-uint64_t Move::convertRowColToBitBoard(char row, char col)
+uint64_t Move::convertColRowToBitBoard(char col, char row)
 {
 	uint64_t thisLoc = 1;
 
@@ -61,14 +61,14 @@ uint64_t Move::convertRowColToBitBoard(char row, char col)
 	//the row is counted numerically, so subtract 49.
 	//NOTE: we use 49 (aka 1) because the rows are not zero-indexed when described by RC format
 	//multiply by 8 to account for the length of the row
-	int rowIncrement = (row - 49) * 8; // times 8
+	int rowIncrement = (toupper(row) - 49) * 8; // times 8
 
 	//column, just subtract 65
-	int columnIncrement = col - 65;
+	int columnIncrement = toupper(col) - 65;
 
 
-	thisLoc << rowIncrement;
-	thisLoc << columnIncrement;
+	thisLoc = thisLoc << rowIncrement;
+	thisLoc = thisLoc << columnIncrement;
 
 	return thisLoc;
 }
