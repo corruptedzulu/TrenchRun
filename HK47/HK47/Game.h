@@ -7,6 +7,7 @@
 #include "Move.h"
 #include <vector>
 #include <algorithm>
+#include <stdint.h>
 
 using namespace std;
 
@@ -20,11 +21,11 @@ class Game
 
 private:
 
-	bool gameIsInProgress = true;
-	int victor = 0;
+	bool gameIsInProgress;
+	int victo;
 
-	bool computerDidMoveTIESideways = false;
-	bool playerDidMoveTIESideways = false;
+	bool computerDidMoveTIESideways;
+	bool playerDidMoveTIESideways;
 
 	UserInterface userInterface;
 	AI ai;
@@ -80,14 +81,14 @@ private:
 	// to use the attributes, extract them by turning off the other bits
 	// (AND these masks with a copy of the attribute row)
 	// flags to do so are:
-	uint32_t columnOne =   0xF0000000; // 11110000000000000000000000000000;
-	uint32_t columnTwo =   0x0F000000; // 00001111000000000000000000000000;
-	uint32_t columnThree = 0x00F00000; // 00000000111100000000000000000000;
-	uint32_t columnFour =  0x000F0000; // 00000000000011110000000000000000;
-	uint32_t columnFive =  0x0000F000; // 00000000000000001111000000000000;
-	uint32_t columnSix =   0x00000F00; // 00000000000000000000111100000000;
-	uint32_t columnSeven = 0x000000F0; // 00000000000000000000000011110000;
-	uint32_t columnEight = 0x0000000F; // 00000000000000000000000000001111;
+	//uint32_t columnOne =   0xF0000000; // 11110000000000000000000000000000;
+	//uint32_t columnTwo =   0x0F000000; // 00001111000000000000000000000000;
+	//uint32_t columnThree = 0x00F00000; // 00000000111100000000000000000000;
+	//uint32_t columnFour =  0x000F0000; // 00000000000011110000000000000000;
+	//uint32_t columnFive =  0x0000F000; // 00000000000000001111000000000000;
+	//uint32_t columnSix =   0x00000F00; // 00000000000000000000111100000000;
+	//uint32_t columnSeven = 0x000000F0; // 00000000000000000000000011110000;
+	//uint32_t columnEight = 0x0000000F; // 00000000000000000000000000001111;
 
 	uint64_t pieces;
 	

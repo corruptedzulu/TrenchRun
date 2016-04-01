@@ -2,6 +2,7 @@
 
 #include "BitBoard.h"
 #include <ctype.h>
+#include <stdint.h>
 
 class Move
 {

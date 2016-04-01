@@ -2,6 +2,7 @@
 
 #include "Move.h"
 #include "MoveGenerator.h"
+#include <stdint.h>
 #include <vector>
 
 

@@ -7,6 +7,11 @@
 
 Game::Game()
 {
+	gameIsInProgress = true;
+	victor = 0;
+
+	computerDidMoveTIESideways = false;
+	playerDidMoveTIESideways = false;
 }
 
 

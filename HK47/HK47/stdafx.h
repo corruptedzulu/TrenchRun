@@ -5,11 +5,11 @@
 
 #pragma once
 
-#include "targetver.h"
+//#include "targetver.h"
 
 #include <stdio.h>
 #include <iostream>
-#include <tchar.h>
+//#include <tchar.h>
 
 using namespace std;
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Move.h"
+#include <stdint.h>
 
 #define RESET           0
 #define BRIGHT          1
