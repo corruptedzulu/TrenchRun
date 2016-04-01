@@ -32,7 +32,7 @@ void Game::gameLoop()
 
 		updateGameBoardWithMove(computerMove);
 
-		userInterface.printComputerMove();
+		userInterface.printComputerMove(computerMove);
 
 		userInterface.printBoard(pieces, allPiecesAttr);
 
@@ -65,6 +65,12 @@ void Game::gameLoop()
 	{
 		//before we ask the user for their next move, let's find the possibilites they can take
 		possibleMoves = mover.findMoves(pieces, allPiecesAttr, false, playerDidMoveTIESideways);
+
+		if (possibleMoves.size() == 0)
+		{
+			userInterface.printComputerVictory();
+			break;
+		}
 
 		userInterface.printMakeMoveRequest();
 		Move opponentMove = userInterface.getNextMove();
@@ -165,15 +171,22 @@ void Game::gameLoop()
 				userInterface.printTie();
 			}
 
-			continue;
+			break;
 		}
 
 		possibleMoves = mover.findMoves(pieces, allPiecesAttr, true, computerDidMoveTIESideways);
+
+		if (possibleMoves.size() == 0)
+		{
+			userInterface.printPlayerVictory();
+			break;
+		}
+
 		Move computerMove = ai.determineComputerMove(possibleMoves, pieces, allPiecesAttr, computerDidMoveTIESideways, playerDidMoveTIESideways);
 
 		updateGameBoardWithMove(computerMove);
 
-		userInterface.printComputerMove();
+		userInterface.printComputerMove(computerMove);
 
 		userInterface.printBoard(pieces, allPiecesAttr);
 
@@ -225,11 +238,22 @@ void Game::gameLoop()
 				userInterface.printTie();
 			}
 
-			continue;
+			break;
 		}
 		
 		
 	}
+
+	cout << endl << "Instruction: Press Q to terminate this training scenario, Master. ";
+	char answer;
+	cin >> answer;
+	
+	while (answer != 'Q' || answer != 'q')
+	{
+		cout << endl << "Observation: Droids are far more dextrous than most meatbags. Try again, Master: ";
+		cin >> answer;
+	}
+
 }
 
 void Game::initHelers()
@@ -273,36 +297,36 @@ void Game::initAI()
 void Game::createBitBoards()
 {
 	BitBoard *myDeathStar = new BitBoard("My Death Star", "Death Star", true, '6', 'D');
-	BitBoard *opponentDeathStar = new BitBoard("Opponent Death Star", "Death Star", false, '2', 'D');
-	
-
-	BitBoard *myWallLeft = new BitBoard("My Left Wall", "Wall", true, '6', 'C');
-	BitBoard *myWallRight = new BitBoard("My Right Wall", "Wall", true, '6', 'E');;
-	BitBoard *opponentWallLeft;
-	BitBoard *opponentWallRight;
+BitBoard *opponentDeathStar = new BitBoard("Opponent Death Star", "Death Star", false, '2', 'D');
 
 
-	BitBoard *myTIEFighterOne;
-	BitBoard *myTIEFighterTwo;
-	BitBoard *myTIEFighterThree;
-	BitBoard *myTIEFighterFour;
-	BitBoard *opponentTIEFighterOne;
-	BitBoard *opponentTIEFighterTwo;
-	BitBoard *opponentTIEFighterThree;
-	BitBoard *opponentTIEFighterFour;
+BitBoard *myWallLeft = new BitBoard("My Left Wall", "Wall", true, '6', 'C');
+BitBoard *myWallRight = new BitBoard("My Right Wall", "Wall", true, '6', 'E');;
+BitBoard *opponentWallLeft;
+BitBoard *opponentWallRight;
+
+
+BitBoard *myTIEFighterOne;
+BitBoard *myTIEFighterTwo;
+BitBoard *myTIEFighterThree;
+BitBoard *myTIEFighterFour;
+BitBoard *opponentTIEFighterOne;
+BitBoard *opponentTIEFighterTwo;
+BitBoard *opponentTIEFighterThree;
+BitBoard *opponentTIEFighterFour;
 
 
 
-	//X Wings 2 and 3, for both sides, cannot capture the Death Star
+//X Wings 2 and 3, for both sides, cannot capture the Death Star
 
-	BitBoard *myXWingOne;
-	BitBoard *myXWingTwo;
-	BitBoard *myXWingThree;
-	BitBoard *myXWingFour;
-	BitBoard *opponentXWingOne;
-	BitBoard *opponentXWingTwo;
-	BitBoard *opponentXWingThree;
-	BitBoard *opponentXWingFour;
+BitBoard *myXWingOne;
+BitBoard *myXWingTwo;
+BitBoard *myXWingThree;
+BitBoard *myXWingFour;
+BitBoard *opponentXWingOne;
+BitBoard *opponentXWingTwo;
+BitBoard *opponentXWingThree;
+BitBoard *opponentXWingFour;
 
 }
 
@@ -314,7 +338,14 @@ uint32_t Game::getAttributesOfColumnForRow(uint32_t mask, uint32_t attribute)
 void Game::updateGameBoardWithMove(Move move)
 {
 	pieces = pieces - move.getLocation();
-	pieces = pieces + move.getDestination();
+
+
+	uint64_t boardMask = 0x1 << (int)(log2(move.getDestination()));
+
+	if ((pieces & boardMask) == 0)
+	{
+		pieces = pieces + move.getDestination();
+	}
 
 	int colLoc = (int)(log2(move.getLocation())) % 8;
 	int rowLoc = (int)(log2(move.getLocation())) / 8;
@@ -358,5 +389,19 @@ void Game::updateGameBoardWithMove(Move move)
 
 bool Game::isGameOver()
 {
+	uint32_t mask = 0xf << (3 * 4);
+	if (allPiecesAttr[1] & mask == 0)
+	{
+		victor = 1;
+		return true;
+	}
+
+	if (allPiecesAttr[5] & mask == 0)
+	{
+		victor = 2;
+		return true;
+	}
+
+
 	return false;
 }

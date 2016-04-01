@@ -40,7 +40,7 @@ public:
 	~UserInterface();
 
 	void printBoard(uint64_t board, uint32_t pieces[]);
-	void printComputerMove();
+	void printComputerMove(Move compMove);
 	void printMakeMoveRequest();
 
 

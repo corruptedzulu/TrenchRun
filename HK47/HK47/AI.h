@@ -38,8 +38,8 @@ public:
 	Move determineComputerMove(vector<Move> moves, uint64_t board, uint32_t attr[], bool computerDidMoveTIESideways, bool playerDidMoveTIESideaways);
 
 	Move minimax(vector<Move> moves, uint64_t board, uint32_t attr[]);
-	int minimaxMax(int depth, uint32_t attr[]);
-	int minimaxMin(int depth, uint32_t attr[]);
+	int minimaxMax(int depth, uint32_t attr[], int alpha, int beta);
+	int minimaxMin(int depth, uint32_t attr[], int alpha, int beta);
 
 	int evaluateMove(uint64_t allPieces, uint32_t attr[]);
 	uint32_t makeMove(Move move, uint64_t board, uint32_t attr[]);

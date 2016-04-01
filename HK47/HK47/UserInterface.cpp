@@ -111,7 +111,11 @@ void UserInterface::printBoard(uint64_t board, uint32_t pieces[])
 		pieceColors[x * 8 + 7] = getColorForAttributeNumber(eight);
 
 
-
+		if (x != 7)
+		{
+			cout << x + 1 << " ";
+		}
+		
 		for (int y = 0; y < 8; y++)
 		{
 
@@ -124,6 +128,8 @@ void UserInterface::printBoard(uint64_t board, uint32_t pieces[])
 
 
 	}
+
+	cout << "  " << "A B C D E F G" << endl;
 
 
 
@@ -184,13 +190,24 @@ void UserInterface::printBoard(uint64_t board, uint32_t pieces[])
 	}*/
 }
 
-void UserInterface::printComputerMove()
+void UserInterface::printComputerMove(Move compMove)
 {
 	string pieceName;
 	string startingLocation;
 	string endingLocation;
 
-	cout << "Statement: I am moving my " << pieceName << " from " << startingLocation << " to " << endingLocation << "." << endl;
+
+	int colLoc = (int)(log2(compMove.getLocation())) % 8;
+	int rowLoc = (int)(log2(compMove.getLocation())) / 8;
+
+	int colDes = (int)(log2(compMove.getDestination())) % 8;
+	int rowDes = (int)(log2(compMove.getDestination())) / 8;
+
+	char colL = (char)(colLoc + 65);
+	char colD = (char)(colDes + 65);
+
+	cout << "Statement: My move is: " << colL << rowLoc + 1 << colD << rowDes + 1 << " ." << endl;
+
 }
 
 void UserInterface::printMakeMoveRequest()
@@ -251,17 +268,17 @@ bool UserInterface::askWhichPlayerStarts()
 
 void UserInterface::printOpeningMessage()
 {
-	cout << "Greeting: This ";
+	cout << "Statement: This unit, HK-47, is programmed with training scenarios to help defeat your enemies, Master. Usually meatbags." << endl;
 }
 
 void UserInterface::printPlayerVictory()
 {
-	cout << "Disappointment: You have bested me.";
+	cout << "Disappointment: You have bested me";
 }
 
 void UserInterface::printComputerVictory()
 {
-	cout << "Satisfaction: I have won.";
+	cout << "Satisfaction: I have emerged victorious.";
 }
 
 void UserInterface::printTie()
@@ -271,7 +288,7 @@ void UserInterface::printTie()
 
 void UserInterface::printIllegalMove()
 {
-	cout << "Statement: That is not a valid move.";
+	cout << "Statement: That is not a valid move." << endl;
 }
 
 
@@ -329,19 +346,19 @@ char UserInterface::getCharacterForAttributeNumber(int number)
 		returnable = 'X';
 		break;
 	case 6:
-		returnable = '*';
+		returnable = '@';
 		break;
 	case 7:
-		returnable = '#';
+		returnable = '~';
 		break;
 	case 8:
-		returnable = 'H';
+		returnable = 'T';
 		break;
 	case 9:
-		returnable = 'X';
+		returnable = 'x';
 		break;
 	case 10:
-		returnable = 'X';
+		returnable = 'x';
 		break;
 	case 11:
 		returnable = ' ';

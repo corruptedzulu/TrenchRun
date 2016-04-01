@@ -34,6 +34,8 @@ Move AI::minimax(vector<Move> moves, uint64_t board, uint32_t attr[])
 	Move bestMove;
 	int bestScore = -9999;
 	bool madeTieMove = false;
+	int alpha = -9999;
+	int beta = 9999;
 
 	for (int x = 0; x < moves.size(); x++)
 	{
@@ -60,7 +62,7 @@ Move AI::minimax(vector<Move> moves, uint64_t board, uint32_t attr[])
 
 		uint32_t replaced = makeMove(moves.at(x), allPiecesBoard, attr);
 
-		int testedScore = minimaxMin(0, attr);
+		int testedScore = minimaxMin(0, attr, alpha, beta);
 
 		if (testedScore > bestScore)
 		{
@@ -84,9 +86,12 @@ Move AI::minimax(vector<Move> moves, uint64_t board, uint32_t attr[])
 
 }
 
-int AI::minimaxMin(int depth, uint32_t attr[])
+int AI::minimaxMin(int depth, uint32_t attr[], int a, int b)
 {
+	int alpha = a;
+	int beta = b;
 	int bestScore;
+
 	if (gameOver())
 	{
 		if (humanWon)
@@ -107,7 +112,7 @@ int AI::minimaxMin(int depth, uint32_t attr[])
 	}
 	else
 	{
-		bestScore = 9999;
+		bestScore = beta;
 		bool changedTieState = false;
 		bool madeTieMove = false;
 		vector<Move> moves;
@@ -150,7 +155,15 @@ int AI::minimaxMin(int depth, uint32_t attr[])
 
 			uint32_t replaced = makeMove(moves.at(x), allPiecesBoard, attr);
 
-			int testedScore = minimaxMax(depth + 1, attr);
+			int testedScore = minimaxMax(depth + 1, attr, alpha, beta);
+			
+			if (testedScore < beta)
+			{
+				beta = testedScore;
+			}
+
+			
+			
 
 			if (testedScore < bestScore)
 			{
@@ -166,16 +179,26 @@ int AI::minimaxMin(int depth, uint32_t attr[])
 				madeTieMove = false;
 			}
 
+			if (beta <= alpha)
+			{
+				break;
+				//return beta;
+			}
+
 		}
 
-		return bestScore;
+		return beta;
+		//return bestScore;
 	}
 
 }
 
-int AI::minimaxMax(int depth, uint32_t attr[])
+int AI::minimaxMax(int depth, uint32_t attr[], int a, int b)
 {
-	int bestScore = -9999;
+	int alpha = a;
+	int beta = b;
+	int bestScore;
+
 	if (gameOver())
 	{
 		if (humanWon)
@@ -196,7 +219,7 @@ int AI::minimaxMax(int depth, uint32_t attr[])
 	}
 	else
 	{
-		bestScore = -9999;
+		bestScore = alpha;
 		bool changedTieState = false;
 		bool madeTieMove = false;
 		vector<Move> moves;
@@ -237,7 +260,14 @@ int AI::minimaxMax(int depth, uint32_t attr[])
 
 			uint32_t replaced = makeMove(moves.at(x), allPiecesBoard, attr);
 
-			int testedScore = minimaxMin(depth + 1, attr);
+			int testedScore = minimaxMin(depth + 1, attr, alpha, beta);
+
+			if (testedScore > alpha)
+			{
+				alpha = testedScore;
+			}
+
+			
 
 			if (testedScore > bestScore)
 			{
@@ -253,6 +283,13 @@ int AI::minimaxMax(int depth, uint32_t attr[])
 				madeTieMove = false;
 			}
 
+
+			if (beta <= alpha)
+			{
+				break;
+				//return alpha;
+			}
+
 		}
 
 		if (changedTieState)
@@ -261,7 +298,8 @@ int AI::minimaxMax(int depth, uint32_t attr[])
 			movedTieOnLastTurn = true;
 		}
 
-		return bestScore;
+		return alpha;
+		//return bestScore;
 	}
 
 }
