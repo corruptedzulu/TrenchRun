@@ -18,8 +18,14 @@ void AI::setMoveGenerator(MoveGenerator mg)
 
 
 
-Move AI::determineComputerMove(vector<Move> moves, uint64_t board, uint32_t attr[])
+Move AI::determineComputerMove(vector<Move> moves, uint64_t board, uint32_t argattr[], bool computerDidMoveTIESideways, bool playerDidMoveTIESideaways)
 {
+	movedTieOnLastTurn = computerDidMoveTIESideways;
+	opponentMovedTieOnLastTurn = playerDidMoveTIESideaways;
+	allPiecesBoard = board;
+	attr = argattr;
+
+
 	return minimax(moves, board, attr);
 }
 
@@ -27,21 +33,51 @@ Move AI::minimax(vector<Move> moves, uint64_t board, uint32_t attr[])
 {
 	Move bestMove;
 	int bestScore = -9999;
+	bool madeTieMove = false;
 
 	for (int x = 0; x < moves.size(); x++)
 	{
-		uint32_t replaced = makeMove(moves.front(), allPiecesBoard, attr);
 
-		int testedScore = minimaxMin(maxDepth, attr);
+		//check if this moves a TIE sideways
+		uint64_t rowLoc = moves.at(x).getLocation();
+		uint64_t rowDes = moves.at(x).getDestination();
+
+		rowLoc = (int)(log2(rowLoc));
+		rowDes = (int)(log2(rowDes));
+
+		rowLoc = rowLoc / 8;
+		rowDes = rowDes / 8;
+
+
+		//if these are on the same row, then it is a sideways move
+		if (rowLoc == rowDes)
+		{
+			madeTieMove = true;
+			movedTieOnLastTurn = true;
+		}
+
+
+
+		uint32_t replaced = makeMove(moves.at(x), allPiecesBoard, attr);
+
+		int testedScore = minimaxMin(0, attr);
 
 		if (testedScore > bestScore)
 		{
 			bestScore = testedScore;
-			bestMove = moves.front();
+			bestMove = moves.at(x);
 		}
 
 		undoMove(allPiecesBoard, attr, replaced);
-		moves.erase(moves.begin());
+
+		//if moved TIE sideways, undo
+		if (madeTieMove)
+		{
+			movedTieOnLastTurn = false;
+			madeTieMove = false;
+		}
+
+		//moves.erase(moves.begin());
 	}
 
 	return bestMove;
@@ -65,21 +101,56 @@ int AI::minimaxMin(int depth, uint32_t attr[])
 
 		return 0;
 	}
-	else if (depth == maxDepth)
+	else if (depth == MAX_DEPTH)
 	{
 		return evaluateMove(allPiecesBoard, attr);
 	}
 	else
 	{
 		bestScore = 9999;
+		bool changedTieState = false;
+		bool madeTieMove = false;
+		vector<Move> moves;
 
-		vector<Move> moves = movegen.findMoves(allPiecesBoard, attr, false, false);
+		if (opponentMovedTieOnLastTurn)
+		{
+			moves = movegen.findMoves(allPiecesBoard, attr, false, opponentMovedTieOnLastTurn);
+
+			opponentMovedTieOnLastTurn = false;
+			changedTieState = true;
+		}
+		else
+		{
+			moves = movegen.findMoves(allPiecesBoard, attr, false, opponentMovedTieOnLastTurn);
+		}
+		
+		//vector<Move> moves = movegen.findMoves(allPiecesBoard, attr, false, opponentMovedTieOnLastTurn);
 
 		for (int x = 0; x < moves.size(); x++)
 		{
-			uint32_t replaced = makeMove(moves.front(), allPiecesBoard, attr);
 
-			int testedScore = minimaxMax(depth - 1, attr);
+			//check if this moves a TIE sideways
+			uint64_t rowLoc = moves.at(x).getLocation();
+			uint64_t rowDes = moves.at(x).getDestination();
+
+			rowLoc = (int)(log2(rowLoc));
+			rowDes = (int)(log2(rowDes));
+
+			rowLoc = rowLoc / 8;
+			rowDes = rowDes / 8;
+
+
+			//if these are on the same row, then it is a sideways move
+			if (rowLoc == rowDes)
+			{
+				madeTieMove = true;
+				opponentMovedTieOnLastTurn = true;
+			}
+
+
+			uint32_t replaced = makeMove(moves.at(x), allPiecesBoard, attr);
+
+			int testedScore = minimaxMax(depth + 1, attr);
 
 			if (testedScore < bestScore)
 			{
@@ -87,6 +158,13 @@ int AI::minimaxMin(int depth, uint32_t attr[])
 			}
 
 			undoMove(allPiecesBoard, attr, replaced);
+
+			//if moved TIE sideways, undo
+			if (madeTieMove)
+			{
+				opponentMovedTieOnLastTurn = false;
+				madeTieMove = false;
+			}
 
 		}
 
@@ -112,34 +190,75 @@ int AI::minimaxMax(int depth, uint32_t attr[])
 
 		return 0;
 	}
-	else if (depth == maxDepth)
+	else if (depth == MAX_DEPTH)
 	{
 		return evaluateMove(allPiecesBoard, attr);
 	}
 	else
 	{
 		bestScore = -9999;
+		bool changedTieState = false;
+		bool madeTieMove = false;
+		vector<Move> moves;
 
-		vector<Move> moves = movegen.findMoves(allPiecesBoard, attr, true, movedTieOnLastTurn);
+
+		if (movedTieOnLastTurn)
+		{
+			moves = movegen.findMoves(allPiecesBoard, attr, true, movedTieOnLastTurn);
+
+			movedTieOnLastTurn = false;
+			changedTieState = true;
+		}
+		else
+		{
+			moves = movegen.findMoves(allPiecesBoard, attr, true, movedTieOnLastTurn);
+		}
+
 
 		for (int x = 0; x < moves.size(); x++)
 		{
-			uint32_t replaced = makeMove(moves.front(), allPiecesBoard, attr);
+			//check if this moves a TIE sideways
+			uint64_t rowLoc = moves.at(x).getLocation();
+			uint64_t rowDes = moves.at(x).getDestination();
 
-			int testedScore = minimaxMin(depth - 1, attr);
+			rowLoc = (int)(log2(rowLoc));
+			rowDes = (int)(log2(rowDes));
 
-			if (testedScore < bestScore)
+			rowLoc = rowLoc / 8;
+			rowDes = rowDes / 8;
+
+
+			//if these are on the same row, then it is a sideways move
+			if ( rowLoc == rowDes )
+			{
+				madeTieMove = true;
+				movedTieOnLastTurn = true;
+			}
+
+			uint32_t replaced = makeMove(moves.at(x), allPiecesBoard, attr);
+
+			int testedScore = minimaxMin(depth + 1, attr);
+
+			if (testedScore > bestScore)
 			{
 				bestScore = testedScore;
 			}
 
 			undoMove(allPiecesBoard, attr, replaced);
 
+			//if moved TIE sideways, undo
+			if (madeTieMove)
+			{
+				movedTieOnLastTurn = false;
+				madeTieMove = false;
+			}
+
 		}
 
-		if (movedTieOnLastTurn)
+		if (changedTieState)
 		{
-			movedTieOnLastTurn = false;
+			changedTieState = false;
+			movedTieOnLastTurn = true;
 		}
 
 		return bestScore;
@@ -171,7 +290,7 @@ int AI::evaluateMove(uint64_t allPieces, uint32_t attr[])
 	*/
 	int pieceType;
 
-	signed int score = 0;
+	int score = 0;
 
 
 	//evaluate number of pieces each side has
@@ -203,17 +322,17 @@ uint32_t AI::makeMove(Move move, uint64_t board, uint32_t attr[])
 {
 	movesUnderAnalysis.push_back(move);
 
-	board = board - move.getLocation();
-	board = board + move.getDestination();
+	allPiecesBoard = allPiecesBoard - move.getLocation();
+	allPiecesBoard = allPiecesBoard + move.getDestination();
 	
-	int rowLoc = move.getLocation() % 8;
-	int colLoc = move.getLocation() / 8;
+	int colLoc = (int)(log2(move.getLocation())) % 8;
+	int rowLoc = (int)(log2(move.getLocation())) / 8;
 
-	int rowDes = move.getDestination() % 8;
-	int colDes = move.getDestination() / 8; 
+	int colDes = (int)(log2(move.getDestination())) % 8;
+	int rowDes = (int)(log2(move.getDestination())) / 8;
 
 	//set a mask to the desired place for the column
-	uint32_t mask = 0xF0000000 >> colLoc;
+	uint32_t mask = 0xF0000000 >> (colLoc * 4);
 
 	//now, get the number from the column on its own
 	uint32_t value = mask & attr[rowLoc];
@@ -221,11 +340,19 @@ uint32_t AI::makeMove(Move move, uint64_t board, uint32_t attr[])
 	//remove the value from the current row
 	attr[rowLoc] = attr[rowLoc] - value;
 
-
+	if (colDes < colLoc)
+	{
+		value = value << ((colLoc - colDes) * 4);
+	}
+	else
+	{
+		value = value >> ((colDes - colLoc) * 4);
+	}
 
 	//set a mask to the desired place for the column where we're putting
-	uint32_t destMask = 0xF0000000 >> colDes;
+	uint32_t destMask = 0xF0000000 >> (colDes * 4);
 
+	
 	//now, get the number from the column on its own
 	uint32_t destValue = destMask & attr[rowDes];
 
@@ -246,21 +373,21 @@ void AI::undoMove(uint64_t board, uint32_t attr[], uint32_t replacedValue)
 	Move move = movesUnderAnalysis.back();
 	movesUnderAnalysis.pop_back();
 
-	board = board - move.getDestination();
-	board = board + move.getLocation();
+	allPiecesBoard = allPiecesBoard - move.getDestination();
+	allPiecesBoard = allPiecesBoard + move.getLocation();
 
 
 
-	int rowLoc = move.getLocation() % 8;
-	int colLoc = move.getLocation() / 8;
+	int colLoc = (int)(log2(move.getLocation())) % 8;
+	int rowLoc = (int)(log2(move.getLocation())) / 8;
 
-	int rowDes = move.getDestination() % 8;
-	int colDes = move.getDestination() / 8;
+	int colDes = (int)(log2(move.getDestination())) % 8;
+	int rowDes = (int)(log2(move.getDestination())) / 8;
 
 
 
 	//set a mask to the desired place for the column where we're putting
-	uint32_t destMask = 0xF0000000 >> colDes;
+	uint32_t destMask = 0xF0000000 >> (colDes * 4);
 
 	//now, get the number from the column on its own
 	uint32_t destValue = destMask & attr[rowDes];
@@ -272,20 +399,30 @@ void AI::undoMove(uint64_t board, uint32_t attr[], uint32_t replacedValue)
 	attr[rowDes] = attr[rowDes] + replacedValue;
 
 
+	if (colDes < colLoc)
+	{
+		destValue = destValue >> ((colLoc - colDes) * 4);
+	}
+	else
+	{
+		destValue = destValue << ((colDes - colLoc) * 4);
+	}
 
 	//set a mask to the desired place for the column
-	//uint32_t mask = 0xF0000000 >> colLoc;
+	uint32_t mask = 0xF0000000 >> (colLoc * 4);
 
 	//now, get the number from the column on its own
-	//uint32_t value = mask & attr[rowLoc];
+	uint32_t value = mask & attr[rowLoc];
 
 	//remove the value from the current row
-	//attr[rowLoc] = attr[rowLoc] - value;
+	attr[rowLoc] = attr[rowLoc] - value;
+
+	attr[rowLoc] = attr[rowLoc] + destValue;
 
 
 	
 	//we've removed the place we're going to from the attributes, so now we add our move's attributes to there
-	attr[rowDes] = attr[rowDes] + destValue;
+	//attr[rowDes] = attr[rowDes] + destValue;
 
 
 }
@@ -309,7 +446,7 @@ int AI::getNibbleFromIndicatedPosition(uint32_t bits, int index)
 
 	//shift those bits to be least significant
 	//we add one to make sure we're shifting enough (because our parameter is passed as ZERO-index)
-	bits = bits >> ((8 - index + 1) * 4);
+	bits = bits >> ((8 - (index + 1)) * 4);
 
 	return bits;
 

@@ -22,7 +22,7 @@ BitBoard::BitBoard(string n, string t, bool isComp, char row, char col)
 	type = t;
 	name = n;
 	isComputerPiece = isComp;
-	setBoard(convertRowColToBitBoard(row, col));
+	setBoard(convertColRowToBitBoard(row, col));
 }
 
 
@@ -53,7 +53,7 @@ string BitBoard::getName()
 }
 
 
-uint64_t BitBoard::convertRowColToBitBoard(char row, char col)
+uint64_t BitBoard::convertColRowToBitBoard(char col, char row)
 {
 	uint64_t thisLoc = 1;
 
@@ -67,8 +67,8 @@ uint64_t BitBoard::convertRowColToBitBoard(char row, char col)
 	int columnIncrement = col - 65;
 
 
-	thisLoc << rowIncrement;
-	thisLoc << columnIncrement;
+	thisLoc = thisLoc << rowIncrement;
+	thisLoc = thisLoc << columnIncrement;
 
 	return uint64_t();
 }

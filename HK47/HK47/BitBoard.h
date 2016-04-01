@@ -66,7 +66,7 @@ private:
 	bool isComputerPiece;
 	uint64_t board;
 
-	uint64_t convertRowColToBitBoard(char row, char col);
+	uint64_t convertColRowToBitBoard(char col, char row);
 	char convertOpponentViewToMyViewRow(char row);
 	char convertOpponentViewToMyViewCol(char col);
 

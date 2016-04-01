@@ -23,6 +23,8 @@ private:
 	bool gameIsInProgress = true;
 	int victor = 0;
 
+	bool computerDidMoveTIESideways = false;
+	bool playerDidMoveTIESideways = false;
 
 	UserInterface userInterface;
 	AI ai;

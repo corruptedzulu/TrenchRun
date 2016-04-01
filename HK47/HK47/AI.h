@@ -4,13 +4,16 @@
 #include "MoveGenerator.h"
 #include <vector>
 
+
+#define MAX_DEPTH 5
+
 class AI
 {
 private:
 	MoveGenerator movegen;
 
 
-	int maxDepth = 5;
+	//int maxDepth = 5;
 	//bool gameOver = false;
 	bool humanWon = false;
 	bool computerWon = false;
@@ -21,7 +24,7 @@ private:
 
 	vector<Move> movesUnderAnalysis;
 	uint64_t allPiecesBoard;
-	uint32_t attr[8];
+	uint32_t *attr;// [8];
 
 
 public:
@@ -32,7 +35,7 @@ public:
 	void setMoveGenerator(MoveGenerator mg);
 
 
-	Move determineComputerMove(vector<Move> moves, uint64_t board, uint32_t attr[]);
+	Move determineComputerMove(vector<Move> moves, uint64_t board, uint32_t attr[], bool computerDidMoveTIESideways, bool playerDidMoveTIESideaways);
 
 	Move minimax(vector<Move> moves, uint64_t board, uint32_t attr[]);
 	int minimaxMax(int depth, uint32_t attr[]);

@@ -27,8 +27,8 @@ void Game::gameLoop()
 
 	if (!opponentPlaysFirst)
 	{
-		possibleMoves = mover.findMoves(pieces, allPiecesAttr, true, false);
-		Move computerMove = ai.determineComputerMove(possibleMoves, pieces, allPiecesAttr);
+		possibleMoves = mover.findMoves(pieces, allPiecesAttr, true, computerDidMoveTIESideways);
+		Move computerMove = ai.determineComputerMove(possibleMoves, pieces, allPiecesAttr, computerDidMoveTIESideways, playerDidMoveTIESideways);
 
 		updateGameBoardWithMove(computerMove);
 
@@ -64,7 +64,7 @@ void Game::gameLoop()
 	while (gameIsInProgress)
 	{
 		//before we ask the user for their next move, let's find the possibilites they can take
-		possibleMoves = mover.findMoves(pieces, allPiecesAttr, false, false);
+		possibleMoves = mover.findMoves(pieces, allPiecesAttr, false, playerDidMoveTIESideways);
 
 		userInterface.printMakeMoveRequest();
 		Move opponentMove = userInterface.getNextMove();
@@ -80,9 +80,26 @@ void Game::gameLoop()
 		for (int x = 0; x < possibleMoves.size(); x++)
 		{
 			temp = possibleMoves.at(x);
-			if (temp.getDestination() == opponentMove.getDestination() && temp.getLocation() == opponentMove.getLocation())
+			uint64_t tempDes = possibleMoves.at(x).getDestination();
+			uint64_t tempLoc = possibleMoves.at(x).getLocation();
+			uint64_t oppDes = opponentMove.getDestination();
+			uint64_t oppLoc = opponentMove.getLocation();
+
+			/*if ( temp.getDestination() == opponentMove.getDestination())
 			{
-				illegalMove == false;
+				if (temp.getLocation() == opponentMove.getLocation())
+				{
+					illegalMove = false;
+				}
+			}*/
+
+			if (tempDes == oppDes)
+			{
+				if (tempLoc == oppLoc)
+				{
+					illegalMove = false;
+					break;
+				}
 			}
 		}
 
@@ -97,6 +114,36 @@ void Game::gameLoop()
 		updateGameBoardWithMove(opponentMove);
 		
 		userInterface.printBoard(pieces, allPiecesAttr);
+
+
+		if (playerDidMoveTIESideways)
+		{
+			playerDidMoveTIESideways = false;
+		}
+
+
+		//TODO: check if player moved a TIE Fighter sideways
+
+		//check if this moves a TIE sideways
+		uint64_t rowLoc = opponentMove.getLocation();
+		uint64_t rowDes = opponentMove.getDestination();
+
+		rowLoc = (int)(log2(rowLoc));
+		rowDes = (int)(log2(rowDes));
+
+		rowLoc = rowLoc / 8;
+		rowDes = rowDes / 8;
+
+
+		//if these are on the same row, then it is a sideways move
+		if (rowLoc == rowDes)
+		{
+			playerDidMoveTIESideways = true;
+			//movedTieOnLastTurn = true;
+		}
+
+
+
 
 		if (isGameOver())
 		{
@@ -121,14 +168,41 @@ void Game::gameLoop()
 			continue;
 		}
 
-		possibleMoves = mover.findMoves(pieces, allPiecesAttr, true, false);
-		Move computerMove = ai.determineComputerMove(possibleMoves, pieces, allPiecesAttr);
+		possibleMoves = mover.findMoves(pieces, allPiecesAttr, true, computerDidMoveTIESideways);
+		Move computerMove = ai.determineComputerMove(possibleMoves, pieces, allPiecesAttr, computerDidMoveTIESideways, playerDidMoveTIESideways);
 
 		updateGameBoardWithMove(computerMove);
 
 		userInterface.printComputerMove();
 
 		userInterface.printBoard(pieces, allPiecesAttr);
+
+
+		if (playerDidMoveTIESideways)
+		{
+			playerDidMoveTIESideways = false;
+		}
+
+
+		//check if this moves a TIE sideways
+		rowLoc = opponentMove.getLocation();
+		rowDes = opponentMove.getDestination();
+
+		rowLoc = (int)(log2(rowLoc));
+		rowDes = (int)(log2(rowDes));
+
+		rowLoc = rowLoc / 8;
+		rowDes = rowDes / 8;
+
+
+		//if these are on the same row, then it is a sideways move
+		if (rowLoc == rowDes)
+		{
+			computerDidMoveTIESideways = true;
+			//movedTieOnLastTurn = true;
+		}
+
+
 
 
 		if (isGameOver())
@@ -174,6 +248,15 @@ void Game::initBoard()
 	allPiecesAttr[5] = 0x0021200F;
 	allPiecesAttr[6] = 0x0330330F;
 	allPiecesAttr[7] = 0xFFFFFFFF;
+
+	/*allPiecesAttr[0] = 0xF0880880;
+	allPiecesAttr[1] = 0xF0076700;
+	allPiecesAttr[2] = 0xF9A000A9;
+	allPiecesAttr[3] = 0xF0000000;
+	allPiecesAttr[4] = 0xF4500054;
+	allPiecesAttr[5] = 0xF0021200;
+	allPiecesAttr[6] = 0xF0330330;
+	allPiecesAttr[7] = 0xFFFFFFFF;*/
 }
 
 void Game::initDisplay()
@@ -232,6 +315,45 @@ void Game::updateGameBoardWithMove(Move move)
 {
 	pieces = pieces - move.getLocation();
 	pieces = pieces + move.getDestination();
+
+	int colLoc = (int)(log2(move.getLocation())) % 8;
+	int rowLoc = (int)(log2(move.getLocation())) / 8;
+
+	int colDes = (int)(log2(move.getDestination())) % 8;
+	int rowDes = (int)(log2(move.getDestination())) / 8;
+
+	//set a mask to the desired place for the column
+	uint32_t mask = 0xF0000000 >> (colLoc * 4);
+
+	//now, get the number from the column on its own
+	uint32_t value = mask & allPiecesAttr[rowLoc];
+
+	//remove the value from the current row
+	allPiecesAttr[rowLoc] = allPiecesAttr[rowLoc] - value;
+
+
+	if (colDes < colLoc)
+	{
+		value = value << ((colLoc - colDes) * 4);
+	}
+	else
+	{
+		value = value >> ((colDes - colLoc) * 4);
+	}
+
+	//set a mask to the desired place for the column where we're putting
+	uint32_t destMask = 0xF0000000 >> (colDes * 4);
+
+	//now, get the number from the column on its own
+	uint32_t destValue = destMask & allPiecesAttr[rowDes];
+
+	//remove the value from the current row
+	allPiecesAttr[rowDes] = allPiecesAttr[rowDes] - destValue;
+
+
+
+	//we've removed the place we're going to from the attributes, so now we add our move's attributes to there
+	allPiecesAttr[rowDes] = allPiecesAttr[rowDes] + value;
 }
 
 bool Game::isGameOver()
