@@ -4,6 +4,12 @@
 
 AI::AI()
 {
+	humanWon = false;
+	computerWon = false;
+	drawWon = false;
+
+	movedTieOnLastTurn = false;
+	opponentMovedTieOnLastTurn = false;
 }
 
 

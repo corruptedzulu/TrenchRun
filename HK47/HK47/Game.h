@@ -8,6 +8,7 @@
 #include <vector>
 #include <algorithm>
 #include <stdint.h>
+#include "utils.h"
 
 using namespace std;
 
@@ -22,7 +23,7 @@ class Game
 private:
 
 	bool gameIsInProgress;
-	int victo;
+	int victor;
 
 	bool computerDidMoveTIESideways;
 	bool playerDidMoveTIESideways;

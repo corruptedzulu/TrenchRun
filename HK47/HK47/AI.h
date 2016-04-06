@@ -4,9 +4,10 @@
 #include "MoveGenerator.h"
 #include <stdint.h>
 #include <vector>
+#include "utils.h"
 
 
-#define MAX_DEPTH 5
+#define MAX_DEPTH 7
 
 class AI
 {
@@ -16,12 +17,12 @@ private:
 
 	//int maxDepth = 5;
 	//bool gameOver = false;
-	bool humanWon = false;
-	bool computerWon = false;
-	bool drawWon = false;
+	bool humanWon;
+	bool computerWon;
+	bool drawWon;
 
-	bool movedTieOnLastTurn = false;
-	bool opponentMovedTieOnLastTurn = false;
+	bool movedTieOnLastTurn;
+	bool opponentMovedTieOnLastTurn;
 
 	vector<Move> movesUnderAnalysis;
 	uint64_t allPiecesBoard;

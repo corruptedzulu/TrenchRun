@@ -4,6 +4,7 @@
 #include "Move.h"
 #include <stdint.h>
 #include <vector>
+#include "utils.h"
 
 class MoveGenerator
 {

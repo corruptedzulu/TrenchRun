@@ -22,6 +22,9 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 
 	vector<Move> movesAvailable;
 	bool notEnded;
+	int bitPosition = 0;
+	int bitPositionShifted = 0;
+	uint64_t locationShifted = 0;
 
 	//move types
 	
@@ -85,6 +88,9 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 					notEnded = true;
 					while (notEnded) // south
 					{
+						bitPosition = log2_64(location) + 1;
+						bitPositionShifted = log2_64(location >> 8) + 1;
+
 						// -8
 
 						//if we subtract 9 from out current location and it becomes greater than our location
@@ -892,17 +898,26 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 					notEnded = true;
 					while (notEnded) // North
 					{
+						bitPosition = log2_64(location) + 1;
+						bitPositionShifted = log2_64(location << 8) + 1;
+						locationShifted = location << 8;
+
 						// +8
 
 						//if we subtract 9 from out current location and it becomes greater than our location
 						//then we must've gone back around by subtracting past zero. assume this is not valid and terminate
-						if ((location << 8) < location || (location << 8) == 0)
+						if (locationShifted < location || locationShifted == 0)
 						{
 							notEnded = false;
 							break;
 						}
 
-						if ((int)(log2((location << 8))) % 8 < (int)(log2(location)) % 8)
+
+						//int locTemp1 = (int)(log2(1024));
+						//int locTemp2 = log2_64(1024) + 1;
+
+
+						if ( (bitPositionShifted % 8) < (bitPosition % 8) )
 						{
 							//if the remainder (aka the column) after we move is suddenly larger
 							//then we wrapped around to the next row, so ignore and quit
@@ -911,13 +926,13 @@ vector<Move> MoveGenerator::findMoves(uint64_t pieces, uint32_t attr[], bool com
 						}
 
 						//move SOUTHWEST
-						location = location << 8;
+						location = locationShifted;
 
 						//get the current row attributes
-						uint32_t localAttr = attr[(int)(log2(location)) / 8];
+						uint32_t localAttr = attr[bitPositionShifted / 8];
 
 						//get the current column we're checking
-						int localIndex = (int)(log2((location))) % 8;
+						int localIndex = bitPositionShifted % 8;
 						char movedToContents = getNibbleFromIndicatedPosition(localAttr, localIndex);
 
 
@@ -1686,7 +1701,7 @@ int MoveGenerator::getNibbleFromIndicatedPosition(uint32_t bits, int index)
 
 }
 
-char* MoveGenerator::adjustDiagonalForPieceLocation(uint64_t loc, bool swnediag)
+/*char* MoveGenerator::adjustDiagonalForPieceLocation(uint64_t loc, bool swnediag)
 {
 	char answer[8];
 
@@ -1714,7 +1729,7 @@ char* MoveGenerator::adjustDiagonalForPieceLocation(uint64_t loc, bool swnediag)
 	
 	return answer;
 }
-
+*/
 void MoveGenerator::findMovesForPiece(BitBoard piece)
 {
 	string type = piece.getType();

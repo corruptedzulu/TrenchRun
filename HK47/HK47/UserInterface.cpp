@@ -196,6 +196,8 @@ void UserInterface::printComputerMove(Move compMove)
 	string startingLocation;
 	string endingLocation;
 
+	int rowLocOpp, rowDesOpp;
+	char colLOpp, colDOpp;
 
 	int colLoc = (int)(log2(compMove.getLocation())) % 8;
 	int rowLoc = (int)(log2(compMove.getLocation())) / 8;
@@ -206,7 +208,107 @@ void UserInterface::printComputerMove(Move compMove)
 	char colL = (char)(colLoc + 65);
 	char colD = (char)(colDes + 65);
 
-	cout << "Statement: My move is: " << colL << rowLoc + 1 << colD << rowDes + 1 << " ." << endl;
+	switch (rowLoc)
+	{
+	case 0:
+		rowLocOpp = 6;
+		break;
+	case 1:
+		rowLocOpp = 5;
+		break;
+	case 2:
+		rowLocOpp = 4;
+		break;
+	case 3:
+		rowLocOpp = 3;
+		break;
+	case 4:
+		rowLocOpp = 2;
+		break;
+	case 5:
+		rowLocOpp = 1;
+		break;
+	case 6:
+		rowLocOpp = 0;
+		break;
+	}
+
+	switch (rowDes)
+	{
+	case 0:
+		rowDesOpp = 6;
+		break;
+	case 1:
+		rowDesOpp = 5;
+		break;
+	case 2:
+		rowDesOpp = 4;
+		break;
+	case 3:
+		rowDesOpp = 3;
+		break;
+	case 4:
+		rowDesOpp = 2;
+		break;
+	case 5:
+		rowDesOpp = 1;
+		break;
+	case 6:
+		rowDesOpp = 0;
+		break;
+	}
+
+	switch (colL)
+	{
+	case 'A':
+		colLOpp = 'G';
+		break;
+	case 'B':
+		colLOpp = 'F';
+		break;
+	case 'C':
+		colLOpp = 'E';
+		break;
+	case 'D':
+		colLOpp = 'D';
+		break;
+	case 'E':
+		colLOpp = 'C';
+		break;
+	case 'F':
+		colLOpp = 'B';
+		break;
+	case 'G':
+		colLOpp = 'A';
+		break;
+	}
+
+	switch (colD)
+	{
+	case 'A':
+		colDOpp = 'G';
+		break;
+	case 'B':
+		colDOpp = 'F';
+		break;
+	case 'C':
+		colDOpp = 'E';
+		break;
+	case 'D':
+		colDOpp = 'D';
+		break;
+	case 'E':
+		colDOpp = 'C';
+		break;
+	case 'F':
+		colDOpp = 'B';
+		break;
+	case 'G':
+		colDOpp = 'A';
+		break;
+	}
+
+	cout << "Statement: My move is: " << colL << rowLoc + 1 << colD << rowDes + 1 << ". (" << colLOpp << rowLocOpp + 1 << colDOpp << rowDesOpp + 1 << ")" << endl;
 
 }
 

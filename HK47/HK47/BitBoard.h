@@ -57,6 +57,7 @@
 
 #include <string>
 #include <stdint.h>
+#include "utils.h"
 
 using namespace std;
 class BitBoard
