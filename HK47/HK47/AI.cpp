@@ -144,8 +144,8 @@ int AI::minimaxMin(int depth, uint32_t attr[], int a, int b)
 			uint64_t rowLoc = moves.at(x).getLocation();
 			uint64_t rowDes = moves.at(x).getDestination();
 
-			rowLoc = (int)(log2(rowLoc));
-			rowDes = (int)(log2(rowDes));
+			rowLoc = log2_64(rowLoc) + 1;
+			rowDes = log2_64(rowDes) + 1;
 
 			rowLoc = rowLoc / 8;
 			rowDes = rowDes / 8;
@@ -250,8 +250,8 @@ int AI::minimaxMax(int depth, uint32_t attr[], int a, int b)
 			uint64_t rowLoc = moves.at(x).getLocation();
 			uint64_t rowDes = moves.at(x).getDestination();
 
-			rowLoc = (int)(log2(rowLoc));
-			rowDes = (int)(log2(rowDes));
+			rowLoc = log2_64(rowLoc) + 1;
+			rowDes = log2_64(rowDes) + 1;
 
 			rowLoc = rowLoc / 8;
 			rowDes = rowDes / 8;
@@ -368,12 +368,15 @@ uint32_t AI::makeMove(Move move, uint64_t board, uint32_t attr[])
 
 	allPiecesBoard = allPiecesBoard - move.getLocation();
 	allPiecesBoard = allPiecesBoard + move.getDestination();
-	
-	int colLoc = (int)(log2(move.getLocation())) % 8;
-	int rowLoc = (int)(log2(move.getLocation())) / 8;
 
-	int colDes = (int)(log2(move.getDestination())) % 8;
-	int rowDes = (int)(log2(move.getDestination())) / 8;
+	uint64_t location = move.getLocation();
+	uint64_t destination = move.getDestination();
+
+	int colLoc = (log2_64(location) + 1) % 8;
+	int rowLoc = (log2_64(location) + 1) / 8;
+
+	int colDes = (log2_64(destination) + 1) % 8;
+	int rowDes = (log2_64(destination) + 1) / 8;
 
 	//set a mask to the desired place for the column
 	uint32_t mask = 0xF0000000 >> (colLoc * 4);
@@ -422,11 +425,14 @@ void AI::undoMove(uint64_t board, uint32_t attr[], uint32_t replacedValue)
 
 
 
-	int colLoc = (int)(log2(move.getLocation())) % 8;
-	int rowLoc = (int)(log2(move.getLocation())) / 8;
+	uint64_t location = move.getLocation();
+	uint64_t destination = move.getDestination();
 
-	int colDes = (int)(log2(move.getDestination())) % 8;
-	int rowDes = (int)(log2(move.getDestination())) / 8;
+	int colLoc = (log2_64(location) + 1) % 8;
+	int rowLoc = (log2_64(location) + 1) / 8;
+
+	int colDes = (log2_64(destination) + 1) % 8;
+	int rowDes = (log2_64(destination) + 1) / 8;
 
 
 

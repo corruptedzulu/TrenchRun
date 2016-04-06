@@ -139,8 +139,8 @@ void Game::gameLoop()
 		uint64_t rowLoc = opponentMove.getLocation();
 		uint64_t rowDes = opponentMove.getDestination();
 
-		rowLoc = (int)(log2(rowLoc));
-		rowDes = (int)(log2(rowDes));
+		rowLoc = log2_64(rowLoc) + 1;
+		rowDes = log2_64(rowDes) + 1;
 
 		rowLoc = rowLoc / 8;
 		rowDes = rowDes / 8;
@@ -206,8 +206,8 @@ void Game::gameLoop()
 		rowLoc = opponentMove.getLocation();
 		rowDes = opponentMove.getDestination();
 
-		rowLoc = (int)(log2(rowLoc));
-		rowDes = (int)(log2(rowDes));
+		rowLoc = log2_64(rowLoc) + 1;
+		rowDes = log2_64(rowDes) + 1;
 
 		rowLoc = rowLoc / 8;
 		rowDes = rowDes / 8;
@@ -342,9 +342,9 @@ uint32_t Game::getAttributesOfColumnForRow(uint32_t mask, uint32_t attribute)
 
 void Game::updateGameBoardWithMove(Move move)
 {
+	
 	pieces = pieces - move.getLocation();
-
-
+	
 	uint64_t boardMask = 0x1 << (int)(log2(move.getDestination()));
 
 	if ((pieces & boardMask) == 0)
@@ -352,11 +352,14 @@ void Game::updateGameBoardWithMove(Move move)
 		pieces = pieces + move.getDestination();
 	}
 
-	int colLoc = (int)(log2(move.getLocation())) % 8;
-	int rowLoc = (int)(log2(move.getLocation())) / 8;
+	uint64_t location = move.getLocation();
+	uint64_t destination = move.getDestination();
 
-	int colDes = (int)(log2(move.getDestination())) % 8;
-	int rowDes = (int)(log2(move.getDestination())) / 8;
+	int colLoc = (log2_64(location) + 1) % 8;
+	int rowLoc = (log2_64(location) + 1) / 8;
+
+	int colDes = (log2_64(destination) + 1) % 8;
+	int rowDes = (log2_64(destination) + 1) / 8;
 
 	//set a mask to the desired place for the column
 	uint32_t mask = 0xF0000000 >> (colLoc * 4);

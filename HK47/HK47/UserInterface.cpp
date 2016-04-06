@@ -130,6 +130,7 @@ void UserInterface::printBoard(uint64_t board, uint32_t pieces[])
 	}
 
 	cout << "  " << "A B C D E F G" << endl;
+	cout << hex << board << dec << endl;
 
 
 
@@ -199,11 +200,15 @@ void UserInterface::printComputerMove(Move compMove)
 	int rowLocOpp, rowDesOpp;
 	char colLOpp, colDOpp;
 
-	int colLoc = (int)(log2(compMove.getLocation())) % 8;
-	int rowLoc = (int)(log2(compMove.getLocation())) / 8;
+	uint64_t location = compMove.getLocation();
+	uint64_t destination = compMove.getDestination();
 
-	int colDes = (int)(log2(compMove.getDestination())) % 8;
-	int rowDes = (int)(log2(compMove.getDestination())) / 8;
+	int colLoc = (log2_64(location) + 1) % 8;
+	int rowLoc = (log2_64(location) + 1) / 8;
+
+	int colDes = (log2_64(destination) + 1) % 8;
+	int rowDes = (log2_64(destination) + 1) / 8;
+
 
 	char colL = (char)(colLoc + 65);
 	char colD = (char)(colDes + 65);
