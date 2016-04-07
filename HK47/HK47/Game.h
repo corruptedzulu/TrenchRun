@@ -94,7 +94,7 @@ private:
 	uint64_t pieces;
 	
 	uint32_t getAttributesOfColumnForRow(uint32_t mask, uint32_t attribute);
-	void updateGameBoardWithMove(Move move);
+	void updateGameBoardWithMove(Move *move);
 	bool isGameOver();
 
 

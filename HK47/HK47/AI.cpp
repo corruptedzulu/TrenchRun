@@ -359,6 +359,22 @@ int AI::evaluateMove(uint64_t allPieces, uint32_t attr[])
 	}
 
 
+
+	uint32_t mask = 0xf << (4 * 4);
+	if ((attr[1] & mask) >> 16 != 6)
+	{
+		score = score + 5;
+	}
+
+	if ((attr[5] & mask) >> 16 != 1)
+	{
+		score = score - 5;
+	}
+
+
+
+
+
 	return score;
 }
 

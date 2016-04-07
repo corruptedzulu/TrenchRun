@@ -35,7 +35,7 @@ void Game::gameLoop()
 		possibleMoves = mover.findMoves(pieces, allPiecesAttr, true, computerDidMoveTIESideways);
 		Move computerMove = ai.determineComputerMove(possibleMoves, pieces, allPiecesAttr, computerDidMoveTIESideways, playerDidMoveTIESideways);
 
-		updateGameBoardWithMove(computerMove);
+		updateGameBoardWithMove(&computerMove);
 
 		userInterface.printComputerMove(computerMove);
 
@@ -122,7 +122,7 @@ void Game::gameLoop()
 			continue;
 		}
 
-		updateGameBoardWithMove(opponentMove);
+		updateGameBoardWithMove(&opponentMove);
 		
 		userInterface.printBoard(pieces, allPiecesAttr);
 
@@ -189,7 +189,7 @@ void Game::gameLoop()
 
 		Move computerMove = ai.determineComputerMove(possibleMoves, pieces, allPiecesAttr, computerDidMoveTIESideways, playerDidMoveTIESideways);
 
-		updateGameBoardWithMove(computerMove);
+		updateGameBoardWithMove(&computerMove);
 
 		userInterface.printComputerMove(computerMove);
 
@@ -340,20 +340,23 @@ uint32_t Game::getAttributesOfColumnForRow(uint32_t mask, uint32_t attribute)
 	return attribute & mask;
 }
 
-void Game::updateGameBoardWithMove(Move move)
+void Game::updateGameBoardWithMove(Move *move)
 {
+	uint64_t location = move->getLocation();
+	uint64_t destination = move->getDestination();
+
+
+	pieces = pieces - location;
+	int shift = log2_64(destination) + 1;
 	
-	pieces = pieces - move.getLocation();
-	
-	uint64_t boardMask = 0x1 << (int)(log2(move.getDestination()));
+	uint64_t boardMask = (uint64_t)0x1 << shift;
 
 	if ((pieces & boardMask) == 0)
 	{
-		pieces = pieces + move.getDestination();
+		pieces = pieces + destination;
 	}
 
-	uint64_t location = move.getLocation();
-	uint64_t destination = move.getDestination();
+	
 
 	int colLoc = (log2_64(location) + 1) % 8;
 	int rowLoc = (log2_64(location) + 1) / 8;
@@ -397,14 +400,14 @@ void Game::updateGameBoardWithMove(Move move)
 
 bool Game::isGameOver()
 {
-	uint32_t mask = 0xf << (3 * 4);
-	if (allPiecesAttr[1] & mask == 0)
+	uint32_t mask = 0xf << (4 * 4);
+	if ( (allPiecesAttr[1] & mask) >> 16 != 6)
 	{
 		victor = 1;
 		return true;
 	}
 
-	if (allPiecesAttr[5] & mask == 0)
+	if ( (allPiecesAttr[5] & mask) >> 16 != 1)
 	{
 		victor = 2;
 		return true;

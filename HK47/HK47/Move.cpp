@@ -55,7 +55,7 @@ void Move::moveToLocation(char row, char col)
 
 uint64_t Move::convertColRowToBitBoard(char col, char row)
 {
-	uint64_t thisLoc = 1;
+	uint64_t thisLoc = (uint64_t)1;
 
 	//these are the bit offsets we're going to use
 	//the row is counted numerically, so subtract 49.
