@@ -7,7 +7,7 @@
 #include "utils.h"
 
 
-#define MAX_DEPTH 7
+#define MAX_DEPTH 6
 
 class AI
 {

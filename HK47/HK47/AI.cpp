@@ -102,14 +102,17 @@ int AI::minimaxMin(int depth, uint32_t attr[], int a, int b)
 	{
 		if (humanWon)
 		{
-			return -999;
+			humanWon = false;
+			return -50;
 		}
 
 		if (computerWon)
 		{
-			return 999;
+			computerWon = false;
+			return 50;
 		}
-
+		
+		
 		return 0;
 	}
 	else if (depth == MAX_DEPTH)
@@ -209,12 +212,14 @@ int AI::minimaxMax(int depth, uint32_t attr[], int a, int b)
 	{
 		if (humanWon)
 		{
-			return -999;
+			humanWon = false;
+			return -50;
 		}
 
 		if (computerWon)
 		{
-			return 999;
+			computerWon = false;
+			return 50;
 		}
 
 		return 0;
@@ -360,16 +365,16 @@ int AI::evaluateMove(uint64_t allPieces, uint32_t attr[])
 
 
 
-	uint32_t mask = 0xf << (4 * 4);
+	/*uint32_t mask = 0xf << (4 * 4);
 	if ((attr[1] & mask) >> 16 != 6)
 	{
-		score = score + 5;
+		score = score + 50;
 	}
 
 	if ((attr[5] & mask) >> 16 != 1)
 	{
-		score = score - 5;
-	}
+		score = score - 50;
+	}*/
 
 
 
@@ -495,6 +500,18 @@ void AI::undoMove(uint64_t board, uint32_t attr[], uint32_t replacedValue)
 
 bool AI::gameOver()
 {
+	uint32_t mask = 0xf << (4 * 4);
+	if ((attr[1] & mask) >> 16 != 6)
+	{
+		computerWon = true;
+		return true;
+	}
+
+	if ((attr[5] & mask) >> 16 != 1)
+	{
+		humanWon = true;
+		return true;
+	}
 	return false;
 }
 
